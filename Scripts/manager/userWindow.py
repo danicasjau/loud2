@@ -5,8 +5,8 @@ from qtpy.QtWidgets import *
 
 import os
 
-CONFIG_PATH = r"C:\Users\tuomo\Desktop\2loud-studio\prsimTest\loud2Test\00_Pipeline\Plugins\Custom\laud2\Scripts\manager\configuration.json"
-file_path = r"C:\Users\tuomo\Desktop\2loud-studio\prsimTest\loud2Test\00_Pipeline\Plugins\Custom\laud2\Scripts\manager\users.json"
+CONFIG_PATH = r"configuration.json"
+file_path = r"users.json"
 
 
 class ConfigDrivenWindow(QMainWindow):#QWidget):

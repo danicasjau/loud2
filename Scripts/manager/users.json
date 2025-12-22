@@ -30,21 +30,5 @@
         "abreviation": "ADM",
         "role": "Admin",
         "power": 10
-    },
-    {
-        "id": 0,
-        "name": "d",
-        "username": "",
-        "abreviation": "",
-        "role": "Artist",
-        "power": 1
-    },
-    {
-        "id": 6,
-        "name": "asdf",
-        "username": "",
-        "abreviation": "",
-        "role": "Artist",
-        "power": 1
     }
 ]

@@ -17,19 +17,6 @@
 # Licensed under GNU LGPL-3.0-or-later
 #
 # This file is part of Prism.
-#
-# Prism is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Prism is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Prism.  If not, see <https://www.gnu.org/licenses/>.
 
 
 from qtpy.QtCore import *
@@ -41,6 +28,8 @@ from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 from loud2_viewer import WebViewer
 
 from usdAsset_dialog import CreateAssetCustomDlg
+from usdShot_dialog import CreateShotCustomDlg
+
 from PrismUtils import PrismWidgets
 
 from manager.userWindow import ConfigDrivenWindow
@@ -53,7 +42,9 @@ class Prism_laud2_Functions(object):
         self.setStyle = False
 
         print("loud2 registering callbacks for loud2 style")
+
         self.core.registerCallback("postInitialize", self.postInitialize, plugin=self)
+        
         self.core.registerCallback("onProjectBrowserStartup", self.setNamings, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self)
 
@@ -62,6 +53,7 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback(
             "openPBAssetContextMenu", self.productCheck, plugin=self
         )
+        self.core.registerCallback("openPBShotContextMenu", self.productCheck, plugin=self)
 
 
     @err_catcher(name=__name__)
@@ -112,14 +104,33 @@ class Prism_laud2_Functions(object):
         self.configWindow.show()
 
 
+
     # ======================================
     # ASSET CREATION USD ABLE
     # ======================================
     def openCreateAssetDlg(self, parent):
         dlg = CreateAssetCustomDlg(self.core, parent=parent)
         dlg.show()
-
-    def productCheck(self, origin, menu, index):
-        action = QAction("Loud ASSET", origin)
+    
+    def assetAction(self, origin, menu, index):
+        action = QAction("Create Asset l2", origin)
         action.triggered.connect(lambda: self.openCreateAssetDlg(origin))
-        menu.addAction(action)
+        if menu.actions():
+            menu.insertAction(menu.actions()[0], action)
+        else:
+            menu.addAction(action)
+    
+    # ======================================
+    # SHOT CREATION USD ABLE
+    # ======================================
+    def openCreateShotDlg(self, parent):
+        dlg = CreateShotCustomDlg(self.core, parent=parent)
+        dlg.show()
+
+    def shotAction(self, origin, menu, index):
+        action = QAction("Create Shot l2", origin)
+        action.triggered.connect(lambda: self.openCreateShotDlg(origin))
+        if menu.actions():
+            menu.insertAction(menu.actions()[0], action)
+        else:
+            menu.addAction(action)
