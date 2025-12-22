@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "name": "Alice Smith",
+        "username": "asmith",
+        "abreviation": "AS",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 2,
+        "name": "Bob Dylan",
+        "username": "bob.dylan",
+        "abreviation": "abrc",
+        "role": "Admin",
+        "power": 7
+    },
+    {
+        "id": 3,
+        "name": "Carla Martinez",
+        "username": "cmartinez",
+        "abreviation": "CM",
+        "role": "Supervisor",
+        "power": 7
+    },
+    {
+        "id": 99,
+        "name": "Admin User",
+        "username": "admin",
+        "abreviation": "ADM",
+        "role": "Admin",
+        "power": 10
+    },
+    {
+        "id": 0,
+        "name": "d",
+        "username": "",
+        "abreviation": "",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 6,
+        "name": "asdf",
+        "username": "",
+        "abreviation": "",
+        "role": "Artist",
+        "power": 1
+    }
+]

@@ -1,0 +1,27 @@
+{
+    "menus": [
+      {
+        "name": "General",
+        "items": [
+          {
+            "label": "Dashboard",
+            "widget": "DashboardPage"
+          }
+        ]
+      },
+      {
+        "name": "Administration",
+        "items": [
+          {
+            "label": "User Management",
+            "widget": "UserManagementPage"
+          },
+          {
+            "label": "Asset Manager",
+            "widget": "AssetManagementPage"
+          }
+        ]
+      }
+    ]
+  }
+  
