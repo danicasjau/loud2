@@ -1,5 +1,4 @@
-#
-# usdAsset_dialogGui.py
+# usdShot_dialogGui.py
 # 
 # Codi per a la creacio de custom shots loud2
 # 

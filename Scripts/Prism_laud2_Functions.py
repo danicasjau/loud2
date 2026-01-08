@@ -27,8 +27,8 @@ from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 from loud2_viewer import WebViewer
 
-from usdAsset_dialog import CreateAssetCustomDlg
-from usdShot_dialog import CreateShotCustomDlg
+from usdAsset_dialogGui import CreateAssetCustomDlg
+from usdShot_dialogGui import CreateShotCustomDlg
 
 from PrismUtils import PrismWidgets
 
@@ -51,9 +51,11 @@ class Prism_laud2_Functions(object):
 
         # ============== ASSET CREATION FALLBACK =========================
         self.core.registerCallback(
-            "openPBAssetContextMenu", self.productCheck, plugin=self
+            "openPBAssetContextMenu", self.assetAction, plugin=self
         )
-        self.core.registerCallback("openPBShotContextMenu", self.productCheck, plugin=self)
+        self.core.registerCallback(
+            "openPBShotContextMenu", self.shotAction, plugin=self
+        )
 
 
     @err_catcher(name=__name__)
@@ -104,6 +106,10 @@ class Prism_laud2_Functions(object):
         self.configWindow.show()
 
 
+    def confirmDeleteShot(self, msg):
+        result = self.popupQuestion(msg)
+        if result == "Yes":
+            print("Shot deleted")
 
     # ======================================
     # ASSET CREATION USD ABLE
@@ -115,10 +121,30 @@ class Prism_laud2_Functions(object):
     def assetAction(self, origin, menu, index):
         action = QAction("Create Asset l2", origin)
         action.triggered.connect(lambda: self.openCreateAssetDlg(origin))
+
+        btn = QPushButton("Delete Asset")
+        btn.setStyleSheet("""QPushButton { background-color: rgba(255, 0, 0, 0.2);}
+        QPushButton:hover {background-color: rgba(255, 0, 0, 0.4);}""")
+        btn.clicked.connect(lambda: self.confirmDeleteShot("Are you sure you want to delete this asset?"))
+
+
+        #deleteAction = QAction("Delete Asset", origin)
+        deleteAction = QWidgetAction(origin)
+        deleteAction.setDefaultWidget(btn)
+
+        hasId = False
+        for act in menu.actions():
+            if act.text() == "Omit Asset":
+                hasId = True
+                break
+
         if menu.actions():
             menu.insertAction(menu.actions()[0], action)
+            if hasId:
+                menu.addAction(deleteAction) 
         else:
             menu.addAction(action)
+            if hasId: menu.addAction(deleteAction)
     
     # ======================================
     # SHOT CREATION USD ABLE
@@ -130,7 +156,27 @@ class Prism_laud2_Functions(object):
     def shotAction(self, origin, menu, index):
         action = QAction("Create Shot l2", origin)
         action.triggered.connect(lambda: self.openCreateShotDlg(origin))
+
+        btn = QPushButton("Delete Shot")
+        btn.setStyleSheet("""QPushButton { background-color: rgba(255, 0, 0, 0.2);}
+        QPushButton:hover {background-color: rgba(255, 0, 0, 0.4);}""")
+        btn.clicked.connect(lambda: self.confirmDeleteShot("Are you sure you want to delete this shot?"))
+
+        #deleteAction = QAction("Delete Asset", origin)
+        deleteAction = QWidgetAction(origin)
+        deleteAction.setDefaultWidget(btn)
+
+        hasId = False
+        for act in menu.actions():
+            if act.text() == "Omit Shot":
+                hasId = True
+                break
+
         if menu.actions():
             menu.insertAction(menu.actions()[0], action)
+            if hasId:
+                menu.addAction(deleteAction) 
         else:
             menu.addAction(action)
+            if hasId: menu.addAction(deleteAction)
+    
