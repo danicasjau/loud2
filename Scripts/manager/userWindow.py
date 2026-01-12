@@ -5,8 +5,9 @@ from qtpy.QtWidgets import *
 
 import os
 
-CONFIG_PATH = r"configuration.json"
-file_path = r"users.json"
+absolutePath = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Plugins\Custom\laud2\Scripts\manager"
+CONFIG_PATH = fr"{absolutePath}\configuration.json"
+file_path = fr"{absolutePath}\users.json"
 
 
 class ConfigDrivenWindow(QMainWindow):#QWidget):

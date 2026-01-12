@@ -33,6 +33,11 @@ from usdShot_dialog import CreateShotCustomDlg
 from PrismUtils import PrismWidgets
 
 from manager.userWindow import ConfigDrivenWindow
+from BackUpManeger.backup import SafeCopyApp
+
+
+ASSET_INFO_PATH = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Assetinfo\assetInfo.json"
+
 
 class Prism_laud2_Functions(object):
     def __init__(self, core, plugin):
@@ -64,6 +69,29 @@ class Prism_laud2_Functions(object):
         return True
 
 
+    def setDeacentStyle(self):
+        print("Setting deacent style")
+        self.core.pb.tbw_project.setStyleSheet("""
+        QTabBar::tab {
+            padding: 5px 10px;      /* height & width padding */
+            min-height: 26px;        /* force taller tabs */
+            border-radius: 4px;      /* no rounded corners */
+            margin: 5px 5px;
+        }
+
+        QTabBar::tab:selected {
+            background: ##7ba3e3;
+        }
+
+        QTabBar::tab:!selected {
+            background: #2d2d2d;
+        }
+
+        QTabWidget::pane {
+            border: 1px solid #333; /* optional */
+        }
+        """)
+
     def setNamings(self, origin):
         origin.setWindowTitle("2LOUD PRISM - Pipline organization")
 
@@ -89,11 +117,18 @@ class Prism_laud2_Functions(object):
         origin.agentMenu.addAction("Configuration", lambda: self.showConfiguration())
         origin.menubar.addMenu(origin.agentMenu)
 
-    def postInitialize(self):
-        self.core.registerStyleSheet(path=r"P:\VFX_Project_30\r&d\tloud\00_Pipeline\Styles\loudStyle")
+        origin.backupMenu = QMenu("Backup")
+        origin.backupMenu.addAction("Backup Manager", lambda: self.openBackupManager())
+        origin.backupMenu.addAction("Fast Backup", lambda: self.openBackupManager())
+        origin.backupMenu.addAction("Start full Backup", lambda: self.openBackupManager())
+        origin.menubar.addMenu(origin.backupMenu)
 
+    def postInitialize(self):
         if self.setStyle:
+            self.core.registerStyleSheet(path=r"P:\VFX_Project_30\r&d\tloud\00_Pipeline\Styles\loudStyle")
             self.core.setActiveStyleSheet("loudStyle")
+        
+        self.setDeacentStyle()
 
     
     def showWebWindow(self, oType="dis"):
@@ -107,10 +142,16 @@ class Prism_laud2_Functions(object):
         self.configWindow.show()
 
 
-    def confirmDeleteShot(self, msg):
+    def confirmDeleteShot(self, msg, entity):
         result = self.popup(msg)
+        # self.core.getCurrentData from somthing
         if result == "Yes":
             print("Entity deleted")
+
+
+    def openBackupManager(self):
+        ex = SafeCopyApp()
+        ex.show()
 
     # ======================================
     # ASSET CREATION USD ABLE
@@ -123,13 +164,7 @@ class Prism_laud2_Functions(object):
         print(parent)
         dlg = CreateAssetCustomDlg(self.core, parent=parent)
         dlg.show()
-        entity = self.core.entities.getAsset(assetName="ss")
-        print(entity)
-        meta = self.core.entities.getMetaData(entity)
-        print(meta)
-        #self.core.entities.createAsset(self, entity, description=None, preview=None, metaData=None, dialog=None)
-        #self.core.entities.createAsset()
-        
+
     
     def assetAction(self, origin, menu, index):
         action = QAction("Create Asset l2", origin)

@@ -5,20 +5,28 @@ import shutil
 import datetime
 import zipfile
 import psutil
-from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QMessageBox, QProgressBar, QSystemTrayIcon, QMenu,
-                             QTableWidget, QTableWidgetItem, QHeaderView, QComboBox, QGroupBox,
-                             QGridLayout, QFrame, QAbstractItemView)
-from PyQt6.QtCore import QTimer, Qt, QThread, pyqtSignal, QSize, QUrl, QDate
-from PyQt6.QtGui import QIcon, QAction, QPixmap, QDesktopServices, QFont, QColor
 
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "configuration.json")
-ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+try:
+    from PySide6.QtWidgets import *
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtCore import Signal
+    USING_PYQT = False
+except:
+    from PySide2.QtWidgets import *
+    from PySide2.QtCore import *
+    from PySide2.QtGui import *
+    from PySide2.QtCore import Signal
+    USING_PYQT = False
+
+CONFIG_PATH = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Plugins\Custom\laud2\Scripts\BackUpManeger\configuration.json"
+ASSETS_DIR = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Plugins\Custom\laud2\Scripts\BackUpManeger\assets"
+
 
 class ExternalBackupWorker(QThread):
-    progress = pyqtSignal(int)
-    status = pyqtSignal(str)
-    finished = pyqtSignal()
+    progress = Signal(int)
+    status = Signal(str)
+    finished = Signal()
     
     def __init__(self, source_path, dest_path, username):
         super().__init__()
@@ -122,6 +130,7 @@ class SafeCopyApp(QWidget):
             QMessageBox.critical(self, "Error", "configuration.json not found!")
             sys.exit(1)
         
+        print(CONFIG_PATH)
         with open(CONFIG_PATH, 'r') as f:
             try:
                 return json.load(f)
