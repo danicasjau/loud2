@@ -27,8 +27,8 @@ from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 from loud2_viewer import WebViewer
 
-from usdAsset_dialogGui import CreateAssetCustomDlg
-from usdShot_dialogGui import CreateShotCustomDlg
+from usdAsset_dialog import CreateAssetCustomDlg
+from usdShot_dialog import CreateShotCustomDlg
 
 from PrismUtils import PrismWidgets
 
@@ -44,10 +44,8 @@ class Prism_laud2_Functions(object):
         print("loud2 registering callbacks for loud2 style")
 
         self.core.registerCallback("postInitialize", self.postInitialize, plugin=self)
-        
         self.core.registerCallback("onProjectBrowserStartup", self.setNamings, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self)
-
 
         # ============== ASSET CREATION FALLBACK =========================
         self.core.registerCallback(
@@ -55,6 +53,9 @@ class Prism_laud2_Functions(object):
         )
         self.core.registerCallback(
             "openPBShotContextMenu", self.shotAction, plugin=self
+        )
+        self.core.registerCallback(
+            "onCreateAssetDlgOpen", self.customAssetCreation, plugin=self
         )
 
 
@@ -107,16 +108,28 @@ class Prism_laud2_Functions(object):
 
 
     def confirmDeleteShot(self, msg):
-        result = self.popupQuestion(msg)
+        result = self.popup(msg)
         if result == "Yes":
-            print("Shot deleted")
+            print("Entity deleted")
 
     # ======================================
     # ASSET CREATION USD ABLE
     # ======================================
+    def customAssetCreation(self):
+        print("Args shot custom")
+        print(f"ARGS:")
+
     def openCreateAssetDlg(self, parent):
+        print(parent)
         dlg = CreateAssetCustomDlg(self.core, parent=parent)
         dlg.show()
+        entity = self.core.entities.getAsset(assetName="ss")
+        print(entity)
+        meta = self.core.entities.getMetaData(entity)
+        print(meta)
+        #self.core.entities.createAsset(self, entity, description=None, preview=None, metaData=None, dialog=None)
+        #self.core.entities.createAsset()
+        
     
     def assetAction(self, origin, menu, index):
         action = QAction("Create Asset l2", origin)
