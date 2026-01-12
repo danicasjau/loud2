@@ -1,0 +1,20 @@
+[2026-01-07 22:26:51] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:26:51] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:27:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:27:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:28:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:28:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:29:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:29:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:30:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:30:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:31:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:31:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:32:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:32:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:33:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:33:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:34:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:34:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'
+[2026-01-07 22:35:50] User: Admin | Action: Check Regular Backup | Status: Triggered | Details: 48h threshold triggered
+[2026-01-07 22:35:50] User: Admin | Action: Incremental Backup | Status: Failed | Details: [Errno 2] No such file or directory: 'C:/Users/tuomo/Desktop/2loudAddons/safeCopy/backups\\backup_state.json'

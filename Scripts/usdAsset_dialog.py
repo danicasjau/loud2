@@ -1,12 +1,3 @@
-#
-# usdAsset_dialogGui.py
-# 
-# Codi per a
-# 
-
-
-
-
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
@@ -62,10 +53,8 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         # Task Preset (Moved to Top)
         self.lo_preset = QHBoxLayout()
         self.lo_preset.addWidget(QLabel("Task Preset:"))
-        
         self.cb_taskPreset = QComboBox()
-        self.cb_taskPreset.addItems(["Static Asset", "Dynamic Asset", "Character", "Environment"]) 
-
+        self.cb_taskPreset.addItems(["Asset", "Character", "Environment"]) 
         self.lo_preset.addWidget(self.cb_taskPreset)
         self.lo_preset.addStretch()
         self.main_layout.addLayout(self.lo_preset)
@@ -244,62 +233,19 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
     def update_dynamic_ui(self, preset_name):
         # Switch stack page
-        if preset_name == "Static Asset":
+        if preset_name == "Asset":
             self.stack.setCurrentWidget(self.page_asset)
-        elif preset_name == "Character" or preset_name == "Dynamic Asset":
+        elif preset_name == "Character":
             self.stack.setCurrentWidget(self.page_char)
         elif preset_name == "Environment":
             self.stack.setCurrentWidget(self.page_env)
 
     def accept(self):
-        print("... Creating 2Loud Asset ...")
-        self.assetCustomCreation()
+        """Mock USD Asset Creation Logic"""
+        print("... Generating .usd files ...")
+        print("... Success!")
+        print("=" * 40)
         super().accept()
-
-    def assetCustomCreation(self, assetPath: str, departments: list, tasks: list): # NEEED TO FINISH; INCONCURENCYES WITH THE BASE FUNCTION
-        """
-        Create a new Prism asset and add the given departments and tasks.
-
-        Args:
-            assetPath (str): Full Prism asset path (e.g. "characters/hero01")
-            departments (list[str]): List of department names
-            tasks (list[str]): List of task names to add under each department
-        """
-
-        departments = ["Modeling", "Texturing", "Rigging"]
-        tasks = ["Layout", "Animation", "Lighting"]
-
-        entity = {
-            "type": "asset",
-            "asset_path": assetPath,
-        }
-
-        try:
-            assetEntity = self.core.entities.createEntity(entity)
-        except Exception as e:
-            self.core.popup(f"Failed to create asset:\n{str(e)}")
-            return None
-
-        # --- Step 2: Create Departments + Tasks ---
-        for dept in departments:
-            try:
-                self.core.entities.createDepartment(dept, assetEntity, createCat=False)
-
-            except Exception as e:
-                self.core.popup(f"Error creating department '{dept}':\n{str(e)}")
-                continue
-    
-            for taskName in tasks:
-                try:
-                    self.core.entities.createCategory(assetEntity, dept, taskName)
-                except Exception as e:
-                    self.core.popup(f"Error creating task '{taskName}' in '{dept}':\n{str(e)}")
-                    continue
-
-        self.core.popup(f"Created Asset: {assetPath}\nDepartments: {departments}\nTasks: {tasks}")
-
-        return assetEntity
-
 
     def _deleteLayout(self, layout):
         while layout.count():
