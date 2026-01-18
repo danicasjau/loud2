@@ -1,9 +1,24 @@
+
+
+import sys
+from pathlib import Path
+
+
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
 from PrismUtils.Decorators import err_catcher # pyright: ignore[reportMissingImports]
 import os
+
+
+# Dynamically find the PLUGINS folder (3 levels up from this file)
+PLUGINS_DIR = Path(__file__).resolve().parents[3]
+if str(PLUGINS_DIR) not in sys.path:
+    sys.path.insert(0, str(PLUGINS_DIR))
+
+# Now we can import from dataBase
+from dataBase.Scripts.dataBase_operations import operations # pyright: ignore[reportMissingImports]
 
 
 DEPRATMENT_TASKS = [
@@ -750,3 +765,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.core.pb.refreshUI()
         print(result)
         print("created custom 2loud asset")
+
+        # Send Metadata to dataBase
+        operations.updateAsset(new=True)
