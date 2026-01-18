@@ -1,6 +1,6 @@
 {
     "handle_path": "P:/VFX_Project_30/2LOUD/Spotlight",
-    "temp_save_path": "P:/VFX_Project_30/2LOUD/backup",
+    "temp_save_path": "H:/Spotlight/_data/backup",
     "audit_log_path": "C:/Users/tuomo/Desktop/2loudAddons/safeCopy/audit_log.dat",
     "max_backups": 15,
     "weekly_save_enabled": true,

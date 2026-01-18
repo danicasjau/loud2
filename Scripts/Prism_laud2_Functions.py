@@ -35,6 +35,9 @@ from PrismUtils import PrismWidgets
 from manager.userWindow import ConfigDrivenWindow
 from BackUpManeger.backup import SafeCopyApp
 
+import os
+import shutil
+import json
 
 ASSET_INFO_PATH = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Assetinfo\assetInfo.json"
 
@@ -68,29 +71,45 @@ class Prism_laud2_Functions(object):
     def isActive(self):
         return True
 
+    def dump_object(self, obj):
+        print(f"\n=== {type(obj)} ===")
+
+        # Attributes & methods
+        for name in dir(obj):
+            if name.startswith("__"):
+                continue
+            try:
+                value = getattr(obj, name)
+                print(f"{name}: {value}")
+            except Exception as e:
+                print(f"{name}: <error: {e}>")
+
 
     def setDeacentStyle(self):
         print("Setting deacent style")
-        self.core.pb.tbw_project.setStyleSheet("""
-        QTabBar::tab {
-            padding: 5px 10px;      /* height & width padding */
-            min-height: 26px;        /* force taller tabs */
-            border-radius: 4px;      /* no rounded corners */
-            margin: 5px 5px;
-        }
+        try:
+            self.core.pb.tbw_project.setStyleSheet("""
+            QTabBar::tab {
+                padding: 5px 10px;      /* height & width padding */
+                min-height: 16px;        /* force taller tabs */
+                border-radius: 4px;      /* no rounded corners */
+                margin: 5px 5px;
+            }
 
-        QTabBar::tab:selected {
-            background: ##7ba3e3;
-        }
+            QTabBar::tab:selected {
+                background: ##7ba3e3;
+            }
 
-        QTabBar::tab:!selected {
-            background: #2d2d2d;
-        }
+            QTabBar::tab:!selected {
+                background: #2d2d2d;
+            }
 
-        QTabWidget::pane {
-            border: 1px solid #333; /* optional */
-        }
-        """)
+            QTabWidget::pane {
+                border: 1px solid #333; /* optional */
+            }
+            """)
+        except:
+            print("Unable to load gui prism modifications")
 
     def setNamings(self, origin):
         origin.setWindowTitle("2LOUD PRISM - Pipline organization")
@@ -142,11 +161,28 @@ class Prism_laud2_Functions(object):
         self.configWindow.show()
 
 
-    def confirmDeleteShot(self, msg, entity):
-        result = self.popup(msg)
-        # self.core.getCurrentData from somthing
+    def confirmDelete(self, path):
+        title = "⚠️⚠️  ASSET DELATION - EXTREME WARNING  ⚠️⚠️"
+        msg = (
+            f"YOU ARE ABOUT TO DELETE THE {os.path.basename(path)} ASSET.\n\n"
+            "This action is **IRREVERSIBLE** and **DANGEROUS**. "
+            "There is NO undo.\n"
+            "The asset will be COMPLETELY REMOVED from the project. "
+            "ALL references will BREAK. "
+            "ALL dependent paths will FAIL. "
+            "This MAY corrupt scenes, tools, or pipelines. \n"
+            "Proceed ONLY if you know what you are doing. "
+            "If you are unsure — CANCEL. \n\n"
+            f"DELETION ASSET: {os.path.basename(path)} \n"
+            "Do you REALLY want to continue?"
+        )
+        result = self.core.popupQuestion(msg, title=title, icon=QMessageBox.Critical)
         if result == "Yes":
-            print("Entity deleted")
+            result2 = self.core.popupQuestion("THE ASSET WILL BE REMOVED. Confirm: Action ireversible")
+            if result2 == "Yes":
+                self.deleteAsset(path)
+                self.core.pb.refreshUI()
+                print("Entity deleted")
 
 
     def openBackupManager(self):
@@ -160,20 +196,76 @@ class Prism_laud2_Functions(object):
         print("Args shot custom")
         print(f"ARGS:")
 
-    def openCreateAssetDlg(self, parent):
+    def openCreateAssetDlg(self, parent, path):
         print(parent)
-        dlg = CreateAssetCustomDlg(self.core, parent=parent)
+        dlg = CreateAssetCustomDlg(self.core, parent=parent, path=path)
         dlg.show()
 
-    
+    def deleteAssetJsonPath(self, assetPath):
+        print("Delate Asset Json Path")
+
+    # Extract asset name from filesystem path
+        asset_name = os.path.basename(os.path.normpath(assetPath))
+
+        # Read JSON file
+        with open(ASSET_INFO_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        assets = data.get("assets", {})
+
+        if asset_name not in assets:
+            return False
+
+        # Remove asset
+        del assets[asset_name]
+
+        # Write back to file
+        with open(ASSET_INFO_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+        return True
+
+    def deleteAsset(self, assetPath):
+        while True:
+            try:
+                if os.path.exists(assetPath):
+                    shutil.rmtree(assetPath)
+                    if not self.deleteAssetJsonPath(assetPath):
+                        print("Unable to remove from json path")
+                if self.core.useLocalFiles:
+                    lShotPath = assetPath.replace(
+                        self.core.projectPath, self.core.localProjectPath
+                    )
+                    if os.path.exists(lShotPath):
+                        shutil.rmtree(lShotPath)
+                        self.deleteAssetJsonPath(assetPath)
+                break
+            except Exception as e:
+                msg = (
+                    'Permission denied.\nAnother programm uses files in the shotfolder.\n\nThe shot "%s" could not be deleted completly.\n\n%s'
+                    % (assetPath, str(e)),
+                )
+                result = self.core.popupQuestion(msg, buttons=["Retry", "Cancel"])
+                if result == "Cancel":
+                    self.core.popup("Deleting shot canceled.")
+                    break
+
+
     def assetAction(self, origin, menu, index):
+        cItem = origin.tw_tree.itemFromIndex(index)
+        if cItem is None:
+            path = self.core.assetPath
+        else:
+            path = cItem.data(0, Qt.UserRole)["paths"][0]
+
+        print(f"INFO asset sending path: {path}")
         action = QAction("Create Asset l2", origin)
-        action.triggered.connect(lambda: self.openCreateAssetDlg(origin))
+        action.triggered.connect(lambda: self.openCreateAssetDlg(origin, path))
 
         btn = QPushButton("Delete Asset")
         btn.setStyleSheet("""QPushButton { background-color: rgba(255, 0, 0, 0.2);}
         QPushButton:hover {background-color: rgba(255, 0, 0, 0.4);}""")
-        btn.clicked.connect(lambda: self.confirmDeleteShot("Are you sure you want to delete this asset?"))
+        btn.clicked.connect(lambda: self.confirmDelete(f"{path}"))
 
 
         #deleteAction = QAction("Delete Asset", origin)
@@ -208,7 +300,7 @@ class Prism_laud2_Functions(object):
         btn = QPushButton("Delete Shot")
         btn.setStyleSheet("""QPushButton { background-color: rgba(255, 0, 0, 0.2);}
         QPushButton:hover {background-color: rgba(255, 0, 0, 0.4);}""")
-        btn.clicked.connect(lambda: self.confirmDeleteShot("Are you sure you want to delete this shot?"))
+        btn.clicked.connect(lambda: self.confirmDelete("Are you sure you want to delete this shot?"))
 
         #deleteAction = QAction("Delete Asset", origin)
         deleteAction = QWidgetAction(origin)

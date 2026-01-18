@@ -6,12 +6,19 @@ from PrismUtils import PrismWidgets
 from PrismUtils.Decorators import err_catcher
 import os
 
+
+DEPRATMENT_TASKS = [
+    ["Concept", ["Concept"]], 
+    ["Modeling", ["Variants", "Modeling", "Sculping", "FineDetail"]], 
+    ["Texturing", ["Texturing"]], 
+    ["LookDev", ["LookDev"]]
+]
+
 DEPARTMENTS = ["Default", "All"]
 USD_PRODUCTS = ["Default", "All"]
 ASSET_TYPES = ["Static Asset", "Dynamic Asset", "Character", "Environment"]
 
-CUSTOM_ASSET_BASIC_USD = """
-#usda 1.0
+CUSTOM_ASSET_BASIC_USD = """#usda 1.0
 (
     endTimeCode = 1
     framesPerSecond = 24
@@ -24,8 +31,8 @@ CUSTOM_ASSET_BASIC_USD = """
 def Xform "[ASSETNAME]" (
     kind = "component"
     prepend references = [
-        @../../binding/master/[ASSETNAME]_binding_master.usda@</sandBag>,
-        @../../geometry/master/[ASSETNAME]_geometry_master.usdc@</sandBag>
+        @../../binding/master/[ASSETNAME]_binding_master.usda@</[ASSETNAME]>,
+        @../../geometry/master/[ASSETNAME]_geometry_master.usdc@</[ASSETNAME]>
     ]
 )
 {
@@ -42,6 +49,34 @@ def Xform "[ASSETNAME]" (
 """
 
 
+CUSTOM_BINDING_BASIC_USD = """#usda 1.0
+(
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Scope "[ASSETNAME]" (
+    kind = "component"
+)
+{
+    def Xform "geo" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </[ASSETNAME]/mtl/[ASSETNAME]_MTL>
+    }
+
+    def Scope "mtl" (
+        prepend references = @../../materials/master/[ASSETNAME]_materials_master.usdc@</materials>
+    )
+    {
+    }
+}
+"""
 
 
 class CreateAssetCustomDlg2(PrismWidgets.CreateItem):
@@ -58,9 +93,7 @@ class CreateAssetCustomDlg2(PrismWidgets.CreateItem):
     def setupUi_(self):
         self.setWindowTitle("Create 2Loud Asset...")
         self.resize(450, 750)
-
         layout = self.layout()
-
 
         print("Current asset creation")
 
@@ -69,7 +102,7 @@ class CreateAssetCustomDlg2(PrismWidgets.CreateItem):
         super().accept()
 
 class CreateAssetCustomDlg(PrismWidgets.CreateItem):
-    def __init__(self, core, parent=None, startText=None):
+    def __init__(self, core, parent=None, startText=None, path=None):
         startText = startText or ""
         super(CreateAssetCustomDlg, self).__init__(startText=startText.lstrip("/"), core=core, mode="assetHierarchy", allowChars=["/"])
         self.parentDlg = parent
@@ -79,7 +112,10 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.imgPath = ""
         self.pmap = None
 
+        self.path = path
+
         self.loudCreateAssetImagePath = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Icons\2Loud_tool.png"
+        self.assetPath = r"P:\VFX_Project_30\2LOUD\Spotlight\03_Production\Assets"
 
         self.setupUi_()
 
@@ -102,9 +138,12 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.buttonBox.buttons()[2].setIcon(icon)
 
         self.w_item.setContentsMargins(0, 0, 0, 0)
-        self.e_item.setFocus()
+        # self.e_item.setFocus()
         self.e_item.setToolTip("Asset name or comma separated list of asset names.\nParent nFolders can be included using slashes.")
         self.l_item.setText("Asset(s):")
+        if (len(self.removePath()) <= 0): pathAddText = ""
+        else: pathAddText = self.removePath() + "/"
+        self.e_item.setText(pathAddText)
         # self.l_assetIcon = QLabel()
         # self.w_item.layout().insertWidget(0, self.l_assetIcon)
         # iconPath = os.path.join(
@@ -197,9 +236,9 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_taskPreset)
     
 
-        # =================================
-        # CUSTOM DATA CONFIGURATION
-        # =================================
+        # ==================================
+        # CUSTOM DATA CONFIGURATION 
+        # ==================================
         self.w_settings = QWidget()
         self.lo_settings = QHBoxLayout(self.w_settings)
         self.lo_settings.setContentsMargins(0, 0, 0, 0)
@@ -270,6 +309,22 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
     @err_catcher(name=__name__)
     def sizeHint(self):
         return QSize(450, 450)
+    
+    def assetOverlapError(self, assetName):
+        if self.core.entities.getAsset(assetName):
+            title = "⚠️⚠️  ASSET DELATION - EXTREME WARNING  ⚠️⚠️"
+            msg = (
+                f"Asset already exists. Unable to create, abort mission. "
+            )
+            self.core.popup(msg, title=title, icon=QMessageBox.Critical)
+            return False
+        else: return True
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.createBtn.click()
+        else:
+            super().keyPressEvent(event)
 
     @err_catcher(name=__name__)
     def previewMouseReleaseEvent(self, event):
@@ -380,16 +435,45 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             )
         }
         return values
+    
 
-    def saveUsdPathEmpty(self, assetName, assetProduct, version, save_dir=None):
+    def camelCase(self, text):
+        path, filename = os.path.split(text)
+        filename = filename[:1].lower() + filename[1:]
+
+
+        return os.path.join(path, filename) if path else filename
+
+
+    def saveUsdPathEmpty(self, assetName, assetProduct, usdExample, version, save_dir=None, format="usda"):
         if not save_dir: return None
-        file_name = f"{assetName}_{assetProduct}_{version}.usda"
+
+        assetName = self.camelCase(assetName) 
+
+        file_name = f"{assetName}_{assetProduct}_{version}.{format}"
         save_path = os.path.join(save_dir, file_name)
         os.makedirs(save_dir, exist_ok=True)
-        usdTemplate = CUSTOM_ASSET_BASIC_USD .replace("[ASSETNAME]", assetName)
+        usdTemplate = usdExample.replace("[ASSETNAME]", assetName)
 
         with open(save_path, "w") as f:
             f.write(usdTemplate)
+        print(f"USDA saved at: {save_path}")
+        return save_path
+    
+
+    def saveUsdCopyPath(self, assetName, assetProduct, version, save_dir=None):
+        if not save_dir: return None
+
+        assetName = self.camelCase(assetName) 
+
+        new_file_name = f"{assetName}_{assetProduct}_{version}.usdc"
+        old_file_material_path = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Plugins\Custom\laud2\Scripts\materials\basicMaterial_MTL.usdc"
+        save_path = os.path.join(save_dir, new_file_name)
+        
+        import shutil
+
+        shutil.copy(old_file_material_path, save_path)
+
         print(f"USDA saved at: {save_path}")
         return save_path
     
@@ -401,19 +485,34 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         except PermissionError:
             print("No permission to delete:", file_path)
 
+        
+    def removePath(self):
+        base = os.path.normpath(self.assetPath)
+        full = os.path.normpath(self.path)
 
+        if full.startswith(base):
+            relative = full[len(base):].lstrip(os.sep)
+        else:
+            relative = full
+
+        return relative.replace(os.sep, "/")
 
     def onLoud2CreateButtonClicked(self, dataValues):
         #entity = {'type': 'asset', 'asset_path': 'ASSET NAME'}
         #metadata = {'sd': {'value': '1', 'show': True}, 's': {'value': 's', 'show': True}, 'a': {'value': 'a', 'show': True}}
+
+        # if self.assetOverlapError():
+        
+
+
 
         assetName = self.e_item.text().strip()
         description = self.getDescription()
         thumbnail = self.getThumbnail()
 
         metValues = self.getDataValues()
-
-
+        assetName = self.camelCase(assetName) 
+        assetCoreName = assetName.split("\\")[-1]
 
         if not assetName:
             print("No asset name")
@@ -426,14 +525,13 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             'type': 'asset', 
             'asset_path': f'{assetName}'
         }
+        print(f"Asset created in path: {assetName}")
 
         metadata = {'isAsset2loud': 
-                        {'value': 'True', 'show': False}, 
-                    'id': 
-                        {'value': 'MATRICULATEST', 'show': True}, 
+                        {'value': 'True', 'show': False},
                     'subdivision': 
                         {'value': f'{metValues["subdivision"]}', 'show': True}, 
-                    'lod': 
+                    'LoD': 
                         {'value': f'{metValues["lod"]}', 'show': True},
                     'txSize': 
                         {'value': f'{metValues["txSize"]}', 'show': True},
@@ -447,17 +545,34 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             metaData=metadata,
             preview=thumbnail
         )
-        
+
         products = ["asset", "binding", "geometry", "materials", "mesh", "textures"]
         filesToDelete = []
         for prod in products:
             path = self.core.products.createProduct(entity=entity, product=f"{prod}")
+            print(f"Created product: {prod} {entity}")
             if prod == "asset":
-                pt = self.saveUsdPathEmpty(assetName, prod, "temp", r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\temp")
+                pt = self.saveUsdPathEmpty(assetCoreName, prod, CUSTOM_ASSET_BASIC_USD, "temp", r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\temp")
                 productInfo = self.core.products.ingestProductVersion([pt], entity, prod)
                 self.core.products.updateMasterVersion(productInfo["createdFiles"][0])
                 filesToDelete.append(pt)
+            if prod == "binding":
+                pt = self.saveUsdPathEmpty(assetCoreName, prod, CUSTOM_BINDING_BASIC_USD, "temp", r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\temp")
+                productInfo = self.core.products.ingestProductVersion([pt], entity, prod)
+                self.core.products.updateMasterVersion(productInfo["createdFiles"][0])
+                filesToDelete.append(pt)
+            if prod == "materials":
+                pt = self.saveUsdCopyPath(assetCoreName, prod, "temp", r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\temp")
+                productInfo = self.core.products.ingestProductVersion([pt], entity, prod)
+                self.core.products.updateMasterVersion(productInfo["createdFiles"][0])
+                filesToDelete.append(pt)
+
             print("Prod created")
+
+        for dep in DEPRATMENT_TASKS:
+            self.core.entities.createDepartment(dep[0], entity, createCat=False)
+            for task in dep[1]:
+                self.core.entities.createCategory(entity, dep[0], task)
 
         for deleteFile in filesToDelete:
             self.deleteFileFromPath(deleteFile)
