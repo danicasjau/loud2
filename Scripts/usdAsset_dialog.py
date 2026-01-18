@@ -124,6 +124,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.setWindowTitle("Create 2loud custom Asset...")
         self.core.parentWindow(self, parent=self.parentDlg)
 
+        # Setup button icons
         iconPath = os.path.join(
             self.core.prismRoot, "Scripts", "UserInterfacesPrism", "create.png"
         )
@@ -137,45 +138,37 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         icon = self.core.media.getColoredIcon(iconPath)
         self.buttonBox.buttons()[2].setIcon(icon)
 
+        # Configure item input
         self.w_item.setContentsMargins(0, 0, 0, 0)
-        # self.e_item.setFocus()
-        self.e_item.setToolTip("Asset name or comma separated list of asset names.\nParent nFolders can be included using slashes.")
+        self.e_item.setToolTip("Asset name or comma separated list of asset names.\nParent folders can be included using slashes.")
         self.l_item.setText("Asset(s):")
-        if (len(self.removePath()) <= 0): pathAddText = ""
-        else: pathAddText = self.removePath() + "/"
+        
+        if (len(self.removePath()) <= 0): 
+            pathAddText = ""
+        else: 
+            pathAddText = self.removePath() + "/"
         self.e_item.setText(pathAddText)
-        # self.l_assetIcon = QLabel()
-        # self.w_item.layout().insertWidget(0, self.l_assetIcon)
-        # iconPath = os.path.join(
-        #     self.core.prismRoot, "Scripts", "UserInterfacesPrism", "asset.png"
-        # )
-        # icon = self.core.media.getColoredIcon(iconPath)
-        # self.l_assetIcon.setPixmap(icon.pixmap(15, 15))
 
-        # =======================================
-        # Custom layout working
-        # =======================================
-
+        # Layout margins
         self.layout().setContentsMargins(20, 20, 20, 20)
 
+        # =======================================
+        # Logo and Title Section
+        # =======================================
         self.logoLabel = QLabel(self)
         self.logoLabel.setFixedSize(50, 50)
         self.logoLabel.setScaledContents(True)
 
-        pixmap = QPixmap(self.loudCreateAssetImagePath)  # ← your given image path
-        self.logoLabel.setPixmap(pixmap)
+        if os.path.exists(self.loudCreateAssetImagePath):
+            pixmap = QPixmap(self.loudCreateAssetImagePath)
+            self.logoLabel.setPixmap(pixmap)
 
         self.w_logoContainer = QWidget()
         lo_logo = QHBoxLayout(self.w_logoContainer)
-        lo_logo.setContentsMargins(10, 10, 10, 10)  # top, left, bottom, right
+        lo_logo.setContentsMargins(10, 10, 10, 10)
         lo_logo.addWidget(self.logoLabel, alignment=Qt.AlignCenter)
 
-        # Insert the container into the main layout
-        self.layout().insertWidget(
-            0,   # top of the layout
-            self.w_logoContainer,
-            alignment=Qt.AlignHCenter
-        )
+        self.layout().insertWidget(0, self.w_logoContainer, alignment=Qt.AlignHCenter)
 
         self.titleLabel = QLabel("2Loud Asset Creator", self)
         self.titleLabel.setAlignment(Qt.AlignCenter)
@@ -183,29 +176,14 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             QLabel {
                 font-size: 20px;
                 font-weight: bold;
-                color: white;  /* or a Prism theme color */
+                color: white;
             }
         """)
-
-        self.layout().insertWidget(
-            0,  # top of layout
-            self.titleLabel,
-            alignment=Qt.AlignHCenter
-        )
+        self.layout().insertWidget(0, self.titleLabel, alignment=Qt.AlignHCenter)
 
         # =======================================
-        # End of custom layout working
+        # Thumbnail Section (between Asset and Description)
         # =======================================
-
-
-        self.createBtn = QPushButton("Create 2Loud Asset", self)
-        self.createBtn.setIcon(iconC)
-        self.createBtn.setToolTip("Create asset using 2Loud pipeline")
-        self.createBtn.clicked.connect(self.onLoud2CreateButtonClicked)
-
-        self.layout().addWidget(self.createBtn)
-
-
         self.w_thumbnail = QWidget()
         self.lo_thumbnail = QHBoxLayout(self.w_thumbnail)
         self.lo_thumbnail.setContentsMargins(0, 0, 0, 0)
@@ -215,85 +193,146 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.lo_thumbnail.addWidget(self.l_thumbnail)
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_thumbnail)
 
-        self.w_taskPreset = QWidget()
-        self.lo_taskPreset = QHBoxLayout(self.w_taskPreset)
-        self.lo_taskPreset.setContentsMargins(0, 0, 0, 0)
-        self.l_taskPreset = QLabel("Task Preset:")
-        self.chb_taskPreset = QCheckBox()
-        self.cb_taskPreset = QComboBox()
-        self.cb_taskPreset.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.lo_taskPreset.addWidget(self.l_taskPreset)
-        self.lo_taskPreset.addStretch()
-        self.lo_taskPreset.addWidget(self.chb_taskPreset)
-        self.lo_taskPreset.addWidget(self.cb_taskPreset)
-        self.cb_taskPreset.setEnabled(self.chb_taskPreset.isChecked())
-        self.chb_taskPreset.toggled.connect(self.cb_taskPreset.setEnabled)
+        # =======================================
+        # Asset Settings Section
+        # =======================================
+        self.w_settings = QWidget()
+        self.assetSettings_Layout = QVBoxLayout(self.w_settings)
+        self.assetSettings_Layout.setContentsMargins(0, 0, 0, 0)
+
+        # Title with line separator
+        self.w_assetSettings_header = QWidget()
+        self.lo_assetSettings_header = QHBoxLayout(self.w_assetSettings_header)
+        self.lo_assetSettings_header.setContentsMargins(0, 0, 0, 0)
+        
+        self.assetSettings_title = QLabel("Asset Settings")
+        self.assetSettings_title.setStyleSheet("font-weight: bold;")
+        
+        self.assetSettings_line = QFrame()
+        self.assetSettings_line.setFrameShape(QFrame.HLine)
+        self.assetSettings_line.setFrameShadow(QFrame.Sunken)
+        
+        self.lo_assetSettings_header.addWidget(self.assetSettings_title)
+        self.lo_assetSettings_header.addWidget(self.assetSettings_line)
+        
+        self.assetSettings_Layout.addWidget(self.w_assetSettings_header)
+
+        # Asset Info Section
+        self.assetInf_title = QLabel("Asset Info")
+        self.assetSettings_Layout.addWidget(self.assetInf_title)
+
+        # First line: ID Field
+        self.assetInf_widget1 = QWidget()
+        self.assetInf_layout1 = QHBoxLayout(self.assetInf_widget1)
+        self.assetInf_layout1.setContentsMargins(0, 0, 0, 0)
+        self.assetInf_layout1.addSpacing(10)
+
+        self.ID_label = QLabel("ID:")
+        self.ID_field = QLineEdit()
+        self.ID_field.setReadOnly(True)
+        self.ID_field.setStyleSheet("QLineEdit { color: grey;}")
+        self.ID_field.setText("feature in process")
+        self.ID_field.setFixedWidth(150)
+
+        self.assetInf_layout1.addWidget(self.ID_label)
+        self.assetInf_layout1.addWidget(self.ID_field)
+        self.assetInf_layout1.addStretch()
+
+        self.assetSettings_Layout.addWidget(self.assetInf_widget1)
+
+        # Second line: Ch Dependant and Task Preset
+        self.assetInf_widget2 = QWidget()
+        self.assetInf_layout2 = QHBoxLayout(self.assetInf_widget2)
+        self.assetInf_layout2.setContentsMargins(0, 0, 0, 0)
+        self.assetInf_layout2.addSpacing(10)
+
+        # Ch Dependant Checkbox (label in front)
+        self.ChDependant_label = QLabel("Ch Dependant:")
+        self.ChDependant_check = QCheckBox()
+        self.ChDependant_check.setChecked(False)
+        self.assetInf_layout2.addWidget(self.ChDependant_label)
+        self.assetInf_layout2.addWidget(self.ChDependant_check)
+        self.assetInf_layout2.addStretch()
+
+        # Task Preset Section
+        self.taskPreset_label = QLabel("Task Preset:")
+        self.taskPreset_combobox = QComboBox()
+        self.taskPreset_combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+
+        self.assetInf_layout2.addWidget(self.taskPreset_label)
+        self.assetInf_layout2.addWidget(self.taskPreset_combobox)
+
+        self.assetSettings_Layout.addWidget(self.assetInf_widget2)
+
+        # Load presets
         presets = self.core.projects.getAssetTaskPresets()
         if presets:
             for preset in presets:
-                self.cb_taskPreset.addItem(preset.get("name", ""), preset)
+                self.taskPreset_combobox.addItem(preset.get("name", ""), preset)
 
-            self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_taskPreset)
-    
+        # =======================================
+        # Additional Settings (Subdivision, LoD, TX Size)
+        # =======================================
+        self.w_additionalSettings = QWidget()
+        self.lo_additionalSettings = QHBoxLayout(self.w_additionalSettings)
+        self.lo_additionalSettings.setContentsMargins(0, 0, 0, 0)
 
-        # ==================================
-        # CUSTOM DATA CONFIGURATION 
-        # ==================================
-        self.w_settings = QWidget()
-        self.lo_settings = QHBoxLayout(self.w_settings)
-        self.lo_settings.setContentsMargins(0, 0, 0, 0)
-
+        # Subdivision
         self.l_subdivision = QLabel("Subdivision:")
         self.sb_subdivision = QSpinBox()
         self.sb_subdivision.setRange(1, 10)
         self.sb_subdivision.setValue(2)
 
+        # LoD
         self.l_tx = QLabel("LoD:")
         self.sb_tx = QSpinBox()
         self.sb_tx.setRange(1, 16)
         self.sb_tx.setValue(2)
 
+        # TX Size
         self.l_txSize = QLabel("TX Size:")
         self.cb_txSize = QComboBox()
         self.cb_txSize.addItems(["512", "1024", "2048", "4096", "8192", "16384"])
         self.cb_txSize.setCurrentText("1024")
 
-        self.lo_settings.addWidget(self.l_subdivision)
-        self.lo_settings.addWidget(self.sb_subdivision)
-        self.lo_settings.addWidget(self.l_tx)
-        self.lo_settings.addWidget(self.sb_tx)
-        self.lo_settings.addWidget(self.l_txSize)
-        self.lo_settings.addWidget(self.cb_txSize)
+        self.lo_additionalSettings.addWidget(self.l_subdivision)
+        self.lo_additionalSettings.addWidget(self.sb_subdivision)
+        self.lo_additionalSettings.addWidget(self.l_tx)
+        self.lo_additionalSettings.addWidget(self.sb_tx)
+        self.lo_additionalSettings.addWidget(self.l_txSize)
+        self.lo_additionalSettings.addWidget(self.cb_txSize)
 
-        self.layout().insertWidget(
-            self.layout().indexOf(self.buttonBox) - 2,
-            self.w_settings
-        )
+        self.assetSettings_Layout.addWidget(self.w_additionalSettings)
+        self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_settings)
 
-
-        # =================================
-        # END OF CUSTOM DATA CONFIGURATION
-        # =================================
-
-
+        # =======================================
+        # Description Section
+        # =======================================
         self.l_info = QLabel("Description:")
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.l_info)
         self.te_text = QTextEdit()
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.te_text)
 
+        # =======================================
+        # Metadata Widget
+        # =======================================
         import MetaDataWidget
         self.w_meta = MetaDataWidget.MetaDataWidget(self.core)
-        self.layout().insertWidget(
-            self.layout().indexOf(self.buttonBox)-2, self.w_meta
-        )
-        # self.spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.layout().insertItem(
-        #     self.layout().indexOf(self.buttonBox), self.spacer
-        # )
+        self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_meta)
 
-        imgFile = os.path.join(
-            self.core.projects.getFallbackFolder(), "noFileSmall.jpg"
-        )
+        # =======================================
+        # Create Button (before buttonBox)
+        # =======================================
+        self.createBtn = QPushButton("Create 2Loud Asset", self)
+        self.createBtn.setIcon(iconC)
+        self.createBtn.setToolTip("Create asset using 2Loud pipeline")
+        self.createBtn.clicked.connect(self.onLoud2CreateButtonClicked)
+        self.layout().insertWidget(self.layout().indexOf(self.buttonBox), self.createBtn)
+
+        # =======================================
+        # Thumbnail Setup
+        # =======================================
+        imgFile = os.path.join(self.core.projects.getFallbackFolder(), "noFileSmall.jpg")
         pmap = self.core.media.getPixmapFromPath(imgFile)
         if pmap:
             self.l_thumbnail.setMinimumSize(pmap.width(), pmap.height())
@@ -303,6 +342,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
         self.l_thumbnail.mouseReleaseEvent = self.previewMouseReleaseEvent
         self.l_thumbnail.customContextMenuRequested.connect(self.rclThumbnail)
+        
         self.resize(450, 550)
 
 
@@ -484,7 +524,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             print("File not found:", file_path)
         except PermissionError:
             print("No permission to delete:", file_path)
-
         
     def removePath(self):
         base = os.path.normpath(self.assetPath)
