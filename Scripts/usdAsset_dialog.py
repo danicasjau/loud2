@@ -2,7 +2,6 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 from PrismUtils import PrismWidgets
-
 from PrismUtils.Decorators import err_catcher
 import os
 
@@ -79,39 +78,21 @@ def Scope "[ASSETNAME]" (
 """
 
 
-class CreateAssetCustomDlg2(PrismWidgets.CreateItem):
-    def __init__(self, core, parent=None, startText=None):
-        self.startText = ""
-        super(CreateAssetCustomDlg, self).__init__(startText=self.startText.lstrip("/"), core=core, mode="assetHierarchy", allowChars=["/"])
-
-        self.parentDlg = parent
-        self.core = core
-        self.thumbXres = 250
-        self.thumbYres = 141
-        self.setupUi_()
-
-    def setupUi_(self):
-        self.setWindowTitle("Create 2Loud Asset...")
-        self.resize(450, 750)
-        layout = self.layout()
-
-        print("Current asset creation")
-
-    def accept(self):
-        print("Custom asset creation generation")
-        super().accept()
-
 class CreateAssetCustomDlg(PrismWidgets.CreateItem):
     def __init__(self, core, parent=None, startText=None, path=None):
         startText = startText or ""
-        super(CreateAssetCustomDlg, self).__init__(startText=startText.lstrip("/"), core=core, mode="assetHierarchy", allowChars=["/"])
+        super(CreateAssetCustomDlg, self).__init__(
+            startText=startText.lstrip("/"), 
+            core=core, 
+            mode="assetHierarchy", 
+            allowChars=["/"]
+        )
         self.parentDlg = parent
         self.core = core
         self.thumbXres = 250
         self.thumbYres = 141
         self.imgPath = ""
         self.pmap = None
-
         self.path = path
 
         self.loudCreateAssetImagePath = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Icons\2Loud_tool.png"
@@ -193,6 +174,12 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.lo_thumbnail.addWidget(self.l_thumbnail)
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_thumbnail)
 
+        # Separator line after thumbnail
+        self.thumbnail_separator = QFrame()
+        self.thumbnail_separator.setFrameShape(QFrame.HLine)
+        self.thumbnail_separator.setFrameShadow(QFrame.Sunken)
+        self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.thumbnail_separator)
+
         # =======================================
         # Asset Settings Section
         # =======================================
@@ -218,8 +205,27 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.assetSettings_Layout.addWidget(self.w_assetSettings_header)
 
         # Asset Info Section
+        self.assetInf_header = QWidget()
+        self.assetInf_header_layout = QHBoxLayout(self.assetInf_header)
+        self.assetInf_header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.assetInf_arrow = QLabel("▶")
         self.assetInf_title = QLabel("Asset Info")
-        self.assetSettings_Layout.addWidget(self.assetInf_title)
+        self.assetInf_title.setStyleSheet("font-weight: bold;")
+        self.assetInf_header.setStyleSheet("cursor: pointer;")
+        self.assetInf_header.mousePressEvent = lambda e: self.toggleSection(self.assetInf_content, self.assetInf_arrow)
+        
+        self.assetInf_header_layout.addWidget(self.assetInf_arrow)
+        self.assetInf_header_layout.addWidget(self.assetInf_title)
+        self.assetInf_header_layout.addStretch()
+        
+        self.assetSettings_Layout.addWidget(self.assetInf_header)
+
+        # Asset Info Content (collapsible)
+        self.assetInf_content = QWidget()
+        self.assetInf_content_layout = QVBoxLayout(self.assetInf_content)
+        self.assetInf_content_layout.setContentsMargins(0, 0, 0, 0)
+        self.assetInf_content.setVisible(False)  # Collapsed by default
 
         # First line: ID Field
         self.assetInf_widget1 = QWidget()
@@ -238,7 +244,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.assetInf_layout1.addWidget(self.ID_field)
         self.assetInf_layout1.addStretch()
 
-        self.assetSettings_Layout.addWidget(self.assetInf_widget1)
+        self.assetInf_content_layout.addWidget(self.assetInf_widget1)
 
         # Second line: Ch Dependant and Task Preset
         self.assetInf_widget2 = QWidget()
@@ -262,7 +268,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.assetInf_layout2.addWidget(self.taskPreset_label)
         self.assetInf_layout2.addWidget(self.taskPreset_combobox)
 
-        self.assetSettings_Layout.addWidget(self.assetInf_widget2)
+        self.assetInf_content_layout.addWidget(self.assetInf_widget2)
 
         # Load presets
         presets = self.core.projects.getAssetTaskPresets()
@@ -270,24 +276,102 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             for preset in presets:
                 self.taskPreset_combobox.addItem(preset.get("name", ""), preset)
 
-        # =======================================
-        # Additional Settings (Subdivision, LoD, TX Size)
-        # =======================================
-        self.w_additionalSettings = QWidget()
-        self.lo_additionalSettings = QHBoxLayout(self.w_additionalSettings)
-        self.lo_additionalSettings.setContentsMargins(0, 0, 0, 0)
+        # Add spacing inside content
+        self.assetInf_content_layout.addSpacing(15)
+        
+        self.assetSettings_Layout.addWidget(self.assetInf_content)
 
-        # Subdivision
+        # =======================================
+        # Additional Settings - Geometry
+        # =======================================
+        self.geometry_header = QWidget()
+        self.geometry_header_layout = QHBoxLayout(self.geometry_header)
+        self.geometry_header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.geometry_arrow = QLabel("▶")
+        self.geometry_title = QLabel("Geometry")
+        self.geometry_title.setStyleSheet("font-weight: bold;")
+        self.geometry_header.setStyleSheet("cursor: pointer;")
+        self.geometry_header.mousePressEvent = lambda e: self.toggleSection(self.geometry_content, self.geometry_arrow)
+        
+        self.geometry_header_layout.addWidget(self.geometry_arrow)
+        self.geometry_header_layout.addWidget(self.geometry_title)
+        self.geometry_header_layout.addStretch()
+        
+        self.assetSettings_Layout.addWidget(self.geometry_header)
+
+        # Geometry Content (collapsible)
+        self.geometry_content = QWidget()
+        self.geometry_content_layout = QVBoxLayout(self.geometry_content)
+        self.geometry_content_layout.setContentsMargins(0, 0, 0, 0)
+        self.geometry_content.setVisible(False)  # Collapsed by default
+
+        self.geometry_widget = QWidget()
+        self.geometry_layout = QHBoxLayout(self.geometry_widget)
+        self.geometry_layout.setContentsMargins(0, 0, 0, 0)
+        self.geometry_layout.addSpacing(10)
+
+        # Subdivision Checkbox
         self.l_subdivision = QLabel("Subdivision:")
-        self.sb_subdivision = QSpinBox()
-        self.sb_subdivision.setRange(1, 10)
-        self.sb_subdivision.setValue(2)
+        self.chk_subdivision = QCheckBox()
+        self.chk_subdivision.setChecked(False)
 
-        # LoD
+        # LoD SpinBox
         self.l_tx = QLabel("LoD:")
         self.sb_tx = QSpinBox()
         self.sb_tx.setRange(1, 16)
         self.sb_tx.setValue(2)
+
+        # GeoVariants SpinBox
+        self.l_geoVariants = QLabel("GeoVariants:")
+        self.sb_geoVariants = QSpinBox()
+        self.sb_geoVariants.setRange(1, 16)
+        self.sb_geoVariants.setValue(1)
+
+        self.geometry_layout.addWidget(self.l_subdivision)
+        self.geometry_layout.addWidget(self.chk_subdivision)
+        self.geometry_layout.addWidget(self.l_tx)
+        self.geometry_layout.addWidget(self.sb_tx)
+        self.geometry_layout.addWidget(self.l_geoVariants)
+        self.geometry_layout.addWidget(self.sb_geoVariants)
+        self.geometry_layout.addStretch()
+
+        self.geometry_content_layout.addWidget(self.geometry_widget)
+        
+        # Add spacing inside content
+        self.geometry_content_layout.addSpacing(15)
+        
+        self.assetSettings_Layout.addWidget(self.geometry_content)
+
+        # =======================================
+        # Additional Settings - Materials
+        # =======================================
+        self.materials_header = QWidget()
+        self.materials_header_layout = QHBoxLayout(self.materials_header)
+        self.materials_header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.materials_arrow = QLabel("▶")
+        self.materials_title = QLabel("Materials")
+        self.materials_title.setStyleSheet("font-weight: bold;")
+        self.materials_header.setStyleSheet("cursor: pointer;")
+        self.materials_header.mousePressEvent = lambda e: self.toggleSection(self.materials_content, self.materials_arrow)
+        
+        self.materials_header_layout.addWidget(self.materials_arrow)
+        self.materials_header_layout.addWidget(self.materials_title)
+        self.materials_header_layout.addStretch()
+        
+        self.assetSettings_Layout.addWidget(self.materials_header)
+
+        # Materials Content (collapsible)
+        self.materials_content = QWidget()
+        self.materials_content_layout = QVBoxLayout(self.materials_content)
+        self.materials_content_layout.setContentsMargins(0, 0, 0, 0)
+        self.materials_content.setVisible(False)  # Collapsed by default
+
+        self.materials_widget = QWidget()
+        self.materials_layout = QHBoxLayout(self.materials_widget)
+        self.materials_layout.setContentsMargins(0, 0, 0, 0)
+        self.materials_layout.addSpacing(10)
 
         # TX Size
         self.l_txSize = QLabel("TX Size:")
@@ -295,14 +379,21 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.cb_txSize.addItems(["512", "1024", "2048", "4096", "8192", "16384"])
         self.cb_txSize.setCurrentText("1024")
 
-        self.lo_additionalSettings.addWidget(self.l_subdivision)
-        self.lo_additionalSettings.addWidget(self.sb_subdivision)
-        self.lo_additionalSettings.addWidget(self.l_tx)
-        self.lo_additionalSettings.addWidget(self.sb_tx)
-        self.lo_additionalSettings.addWidget(self.l_txSize)
-        self.lo_additionalSettings.addWidget(self.cb_txSize)
+        # MtlVariants SpinBox
+        self.l_mtlVariants = QLabel("MtlVariants:")
+        self.sb_mtlVariants = QSpinBox()
+        self.sb_mtlVariants.setRange(1, 16)
+        self.sb_mtlVariants.setValue(1)
 
-        self.assetSettings_Layout.addWidget(self.w_additionalSettings)
+        self.materials_layout.addWidget(self.l_txSize)
+        self.materials_layout.addWidget(self.cb_txSize)
+        self.materials_layout.addWidget(self.l_mtlVariants)
+        self.materials_layout.addWidget(self.sb_mtlVariants)
+        self.materials_layout.addStretch()
+
+        self.materials_content_layout.addWidget(self.materials_widget)
+        self.assetSettings_Layout.addWidget(self.materials_content)
+
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_settings)
 
         # =======================================
@@ -339,16 +430,21 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             self.l_thumbnail.setPixmap(pmap)
 
         self.l_thumbnail.setContextMenuPolicy(Qt.CustomContextMenu)
-
         self.l_thumbnail.mouseReleaseEvent = self.previewMouseReleaseEvent
         self.l_thumbnail.customContextMenuRequested.connect(self.rclThumbnail)
         
         self.resize(450, 550)
 
-
     @err_catcher(name=__name__)
     def sizeHint(self):
         return QSize(450, 450)
+    
+    def toggleSection(self, section_widget, arrow_label):
+        """Toggle visibility of collapsible sections and update arrow"""
+        is_visible = section_widget.isVisible()
+        section_widget.setVisible(not is_visible)
+        # Update arrow: ▶ when collapsed, ▼ when expanded
+        arrow_label.setText("▼" if not is_visible else "▶")
     
     def assetOverlapError(self, assetName):
         if self.core.entities.getAsset(assetName):
@@ -466,16 +562,17 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
     
     def getDataValues(self):
         values = {
-            "subdivision": self.sb_subdivision.value(),
+            "subdivision": self.chk_subdivision.isChecked(),
             "lod": self.sb_tx.value(),
+            "geoVariants": self.sb_geoVariants.value(),
             "txSize": (
                 self.cb_txSize.currentText()
                 if hasattr(self.cb_txSize, "currentText")
                 else self.cb_txSize.value()
-            )
+            ),
+            "mtlVariants": self.sb_mtlVariants.value()
         }
         return values
-    
 
     def camelCase(self, text):
         path, filename = os.path.split(text)
@@ -484,9 +581,9 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
         return os.path.join(path, filename) if path else filename
 
-
     def saveUsdPathEmpty(self, assetName, assetProduct, usdExample, version, save_dir=None, format="usda"):
-        if not save_dir: return None
+        if not save_dir: 
+            return None
 
         assetName = self.camelCase(assetName) 
 
@@ -499,10 +596,10 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             f.write(usdTemplate)
         print(f"USDA saved at: {save_path}")
         return save_path
-    
 
     def saveUsdCopyPath(self, assetName, assetProduct, version, save_dir=None):
-        if not save_dir: return None
+        if not save_dir: 
+            return None
 
         assetName = self.camelCase(assetName) 
 
@@ -511,7 +608,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         save_path = os.path.join(save_dir, new_file_name)
         
         import shutil
-
         shutil.copy(old_file_material_path, save_path)
 
         print(f"USDA saved at: {save_path}")
