@@ -193,7 +193,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.lo_assetSettings_header.setContentsMargins(0, 0, 0, 0)
         
         self.assetSettings_title = QLabel("Asset Settings")
-        self.assetSettings_title.setStyleSheet("font-weight: bold;")
+        self.assetSettings_title.setStyleSheet("font-size: 30; font-weight: bold;")
         
         self.assetSettings_line = QFrame()
         self.assetSettings_line.setFrameShape(QFrame.HLine)
@@ -212,7 +212,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.assetInf_arrow = QLabel("▶")
         self.assetInf_title = QLabel("Asset Info")
         self.assetInf_title.setStyleSheet("font-weight: bold;")
-        self.assetInf_header.setStyleSheet("cursor: pointer;")
         self.assetInf_header.mousePressEvent = lambda e: self.toggleSection(self.assetInf_content, self.assetInf_arrow)
         
         self.assetInf_header_layout.addWidget(self.assetInf_arrow)
@@ -291,7 +290,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.geometry_arrow = QLabel("▶")
         self.geometry_title = QLabel("Geometry")
         self.geometry_title.setStyleSheet("font-weight: bold;")
-        self.geometry_header.setStyleSheet("cursor: pointer;")
         self.geometry_header.mousePressEvent = lambda e: self.toggleSection(self.geometry_content, self.geometry_arrow)
         
         self.geometry_header_layout.addWidget(self.geometry_arrow)
@@ -320,13 +318,14 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.l_tx = QLabel("LoD:")
         self.sb_tx = QSpinBox()
         self.sb_tx.setRange(1, 16)
-        self.sb_tx.setValue(2)
+        self.sb_tx.setValue(1)
 
         # GeoVariants SpinBox
         self.l_geoVariants = QLabel("GeoVariants:")
         self.sb_geoVariants = QSpinBox()
         self.sb_geoVariants.setRange(1, 16)
         self.sb_geoVariants.setValue(1)
+        self.sb_geoVariants.setFixedWidth(60)
 
         self.geometry_layout.addWidget(self.l_subdivision)
         self.geometry_layout.addWidget(self.chk_subdivision)
@@ -353,7 +352,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.materials_arrow = QLabel("▶")
         self.materials_title = QLabel("Materials")
         self.materials_title.setStyleSheet("font-weight: bold;")
-        self.materials_header.setStyleSheet("cursor: pointer;")
         self.materials_header.mousePressEvent = lambda e: self.toggleSection(self.materials_content, self.materials_arrow)
         
         self.materials_header_layout.addWidget(self.materials_arrow)
@@ -384,6 +382,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.sb_mtlVariants = QSpinBox()
         self.sb_mtlVariants.setRange(1, 16)
         self.sb_mtlVariants.setValue(1)
+        self.sb_mtlVariants.setFixedWidth(60)
 
         self.materials_layout.addWidget(self.l_txSize)
         self.materials_layout.addWidget(self.cb_txSize)
