@@ -23,14 +23,14 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-from PrismUtils.Decorators import err_catcher_plugin as err_catcher
+from PrismUtils.Decorators import err_catcher_plugin as err_catcher # pyright: ignore[reportMissingImports]
 
 from loud2_viewer import WebViewer
 
 from usdAsset_dialog import CreateAssetCustomDlg
 from usdShot_dialog import CreateShotCustomDlg
 
-from PrismUtils import PrismWidgets
+from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
 
 from manager.userWindow import ConfigDrivenWindow
 from BackUpManeger.backup import SafeCopyApp

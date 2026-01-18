@@ -1,8 +1,8 @@
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
-from PrismUtils import PrismWidgets
-from PrismUtils.Decorators import err_catcher
+from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
+from PrismUtils.Decorators import err_catcher # pyright: ignore[reportMissingImports]
 import os
 
 
@@ -406,7 +406,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         # =======================================
         # Metadata Widget
         # =======================================
-        import MetaDataWidget
+        import MetaDataWidget # pyright: ignore[reportMissingImports]
         self.w_meta = MetaDataWidget.MetaDataWidget(self.core)
         self.layout().insertWidget(self.layout().indexOf(self.buttonBox)-2, self.w_meta)
 
@@ -487,7 +487,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
     @err_catcher(name=__name__)
     def capturePreview(self):
-        from PrismUtils import ScreenShot
+        from PrismUtils import ScreenShot # pyright: ignore[reportMissingImports]
 
         previewImg = ScreenShot.grabScreenArea(self.core)
 
@@ -561,8 +561,12 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
     
     def getDataValues(self):
         values = {
+            "id": self.ID_field.text(),
+            "description": self.getDescription(),
+            "ch_dependant": self.ChDependant_check.isChecked(),
+            "asset_type": self.taskPreset_combobox.currentText(),
             "subdivision": self.chk_subdivision.isChecked(),
-            "lod": self.sb_tx.value(),
+            "LoD": self.sb_tx.value(),
             "geoVariants": self.sb_geoVariants.value(),
             "txSize": (
                 self.cb_txSize.currentText()
@@ -631,7 +635,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
         return relative.replace(os.sep, "/")
 
-    def onLoud2CreateButtonClicked(self, dataValues):
+    def onLoud2CreateButtonClicked(self):
         #entity = {'type': 'asset', 'asset_path': 'ASSET NAME'}
         #metadata = {'sd': {'value': '1', 'show': True}, 's': {'value': 's', 'show': True}, 'a': {'value': 'a', 'show': True}}
 
@@ -661,17 +665,49 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         }
         print(f"Asset created in path: {assetName}")
 
-        metadata = {'isAsset2loud': 
-                        {'value': 'True', 'show': False},
-                    'subdivision': 
-                        {'value': f'{metValues["subdivision"]}', 'show': True}, 
-                    'LoD': 
-                        {'value': f'{metValues["lod"]}', 'show': True},
-                    'txSize': 
-                        {'value': f'{metValues["txSize"]}', 'show': True},
-                    'assetType': 
-                        {'value': 'staticAsset', 'show': False}
+        metadata = {
+                    'isAsset2loud': {'value': 'True', 'show': False},
+
+                    'id': {
+                        'value': metValues["id"],
+                        'show': True
+                    },
+
+                    'chDependant': {
+                        'value': str(metValues["ch_dependant"]),
+                        'show': True
+                    },
+
+                    'subdivision': {
+                        'value': str(metValues["subdivision"]),
+                        'show': True
+                    },
+
+                    'LoD': {
+                        'value': str(metValues["LoD"]),
+                        'show': True
+                    },
+
+                    'geoVariants': {
+                        'value': str(metValues["geoVariants"]),
+                        'show': True
+                    },
+
+                    'txSize': {
+                        'value': metValues["txSize"],
+                        'show': True
+                    },
+
+                    'mtlVariants': {
+                        'value': str(metValues["mtlVariants"]),
+                        'show': True
+                    },
+
+                    'assetType': {
+                        'value': metValues["asset_type"],
+                        'show': False
                     }
+                }
 
         result = self.core.entities.createEntity(
             entity=entity,
