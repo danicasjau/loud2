@@ -128,6 +128,47 @@ class TViewer(QtWidgets.QMainWindow):
         self.timeline.playing = False
         self.view.closeRenderer()
 
+    def reopenStage(self, path):
+        """
+        Completely reopen a USD stage from the given path and refresh the viewer.
+        """
+        import os
+        from usdt import Usd
+
+        if not path or not os.path.exists(path):
+            raise RuntimeError(f"USD path does not exist: {path}")
+
+        # --- Close current stage properly ---
+        if self.model.stage:
+            try:
+                # Close Hydra renderer to release previous resources
+                self.view.closeRenderer()
+            except Exception:
+                pass
+            self.model.stage = None
+
+        # --- Open new USD stage ---
+        stage = Usd.Stage.Open(path)
+        if not stage:
+            raise RuntimeError(f"Failed to open USD stage: {path}")
+
+        # --- Assign new stage to the model ---
+        self.model.stage = stage
+        self.model.currentFrame = Usd.TimeCode(Usd.TimeCode.EarliestTime())
+
+        # --- Reset timeline ---
+        if stage.HasAuthoredTimeCodeRange():
+            self.timeline.setVisible(True)
+            self.timeline.setStartFrame(stage.GetStartTimeCode())
+            self.timeline.setEndFrame(stage.GetEndTimeCode())
+            self.timeline.framesPerSecond = stage.GetFramesPerSecond()
+        else:
+            self.timeline.setVisible(False)
+
+        # --- Refresh the view ---
+        self.view.updateView(resetCam=True, forceComputeBBox=True)
+
+
     def on_frame_changed(self, value, playback):
         self.model.currentFrame = Usd.TimeCode(value)
 
@@ -163,7 +204,6 @@ class TViewer(QtWidgets.QMainWindow):
         recenter_action = control_menu.addAction("Recenter View")
         recenter_action.triggered.connect(reloadCamera)
         control_menu.addAction(recenter_action)
-
 
     def on_playback_stopped(self):
         self.model.playing = False

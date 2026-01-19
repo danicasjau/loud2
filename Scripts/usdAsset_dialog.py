@@ -3,8 +3,6 @@
 # ///////////////////////////////////////////////////////////////////////////////////////\
 
 
-
-
 import os
 import sys
 from pathlib import Path
@@ -29,8 +27,6 @@ from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
 from PrismUtils.Decorators import err_catcher # pyright: ignore[reportMissingImports]
 
 
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DATA_BASE_SCRIPTS = PROJECT_ROOT / "dataBase" / "Scripts"
@@ -38,10 +34,6 @@ if str(DATA_BASE_SCRIPTS) not in sys.path:
     print(f"{DATA_BASE_SCRIPTS} not found")
 
 from dataBase_operations import operations # pyright: ignore[reportMissingImports]
-
-
-
-
 
 
 DEPARTMENTS = ["Default", "All"]
@@ -92,7 +84,6 @@ def Xform "[ASSETNAME]" (
     kind = "component"
 )
 {
-
 }
 """
 
@@ -679,11 +670,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         #entity = {'type': 'asset', 'asset_path': 'ASSET NAME'}
         #metadata = {'sd': {'value': '1', 'show': True}, 's': {'value': 's', 'show': True}, 'a': {'value': 'a', 'show': True}}
 
-        # if self.assetOverlapError():
-        
-
-
-
         assetName = self.e_item.text().strip()
         description = self.getDescription()
         thumbnail = self.getThumbnail()
@@ -726,7 +712,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'geo_Variants': {
+                    'geo_variants': {
                         'value': str(metValues["geoVariants"]),
                         'show': True
                     },
@@ -736,12 +722,12 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'txSize': {
+                    'texture_size': {
                         'value': metValues["txSize"],
                         'show': True
                     },
 
-                    'mtl_Variants': {
+                    'mtl_variants': {
                         'value': str(metValues["mtlVariants"]),
                         'show': True
                     },
@@ -751,7 +737,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'assetType': {
+                    'asset_type': {
                         'value': metValues["asset_type"],
                         'show': False
                     }
@@ -823,4 +809,8 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
         # Send Metadata to dataBase
         ops = operations(plugin_root=DATA_BASE_SCRIPTS)
+
         ops.updateAsset(new=True, asset_name=assetName, asset_metadata=metadata)
+
+
+    

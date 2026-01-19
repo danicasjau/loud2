@@ -65,6 +65,7 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback("postInitialize", self.postInitialize, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.setNamings, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self)
+        #self.core.registerCallback("onProjectBrowserStartup", self.showUsdPanel, plugin=self) # afageix layout usd viewer 
 
         # ============== ASSET CREATION FALLBACK =========================
         self.core.registerCallback(
@@ -76,6 +77,11 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback(
             "onCreateAssetDlgOpen", self.customAssetCreation, plugin=self
         )
+        self.core.registerCallback(
+            "onCreateVersionDlgOpen", self.updateUsdViewer, plugin=self
+        )
+
+        self.usdviewer = None
 
 
     @err_catcher(name=__name__)
@@ -145,6 +151,7 @@ class Prism_laud2_Functions(object):
 
         origin.agentMenu = QMenu("2LOUD")
         origin.agentMenu.addAction("Configuration", lambda: self.showConfiguration())
+        origin.agentMenu.addAction("Show usd", lambda: self.showUsdPanel())
         origin.menubar.addMenu(origin.agentMenu)
 
         origin.backupMenu = QMenu("Backup")
@@ -160,7 +167,6 @@ class Prism_laud2_Functions(object):
         
         #self.setDeacentStyle()
 
-    
     def showWebWindow(self, oType="dis"):
         print("Show web window")
         self.webWindow = WebViewer(windowType=oType)
@@ -170,7 +176,6 @@ class Prism_laud2_Functions(object):
         print("Show configuration window")
         self.configWindow = ConfigDrivenWindow()
         self.configWindow.show()
-
 
     def confirmDelete(self, path):
         title = "⚠️⚠️  ASSET DELATION - EXTREME WARNING  ⚠️⚠️"
@@ -331,3 +336,54 @@ class Prism_laud2_Functions(object):
             menu.addAction(action)
             if hasId: menu.addAction(deleteAction)
     
+    def updateUsdViewer(self, args=None, args2=None):
+        if args:
+            context = args.getCurrentProduct()
+            path = context["path"]
+            if self.usdviewer:
+                self.usdviewer.reopenStage(os.path.join(path, "master", f"{context['asset']}_{context['type']}_master.usda"))
+
+
+    def showUsdPanel(self):
+        usdPath = r"P:\VFX_Project_30\2LOUD\Spotlight\03_Production\Assets\ASSETS\EXT\BUILDINGASSETS\fenceBuilding\Export\asset\master\fenceBuilding_asset_master.usda"
+        print("Showing panel")
+        from loudUsdViewer import tviewer #TViewer
+        from loudUsdViewer import setScene #getUsdScene
+
+        item_widget = QWidget()
+        item_widget.setObjectName("usdViewerItem")
+        item_widget.setLayoutDirection(Qt.LeftToRight)
+
+        # --- Top label ---
+        usd_versionRight = QLabel("USD VIEWER")
+        usd_versionRight.setObjectName("usd_versionLabel")
+        usd_versionRight.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+        # --- USD Viewer ---
+        self.usdviewer = tviewer.TViewer(stage=setScene.getUsdScene(usdPath))
+        self.usdviewer.setBaseSize(400, 400)   # use this instead of resize()
+
+        self.usdviewer.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
+
+        self.usdviewer.view.updateView(resetCam=False, forceComputeBBox=True)
+
+        # --- Vertical layout ---
+        layout = QVBoxLayout(item_widget)
+        layout.addWidget(usd_versionRight, alignment=Qt.AlignRight)
+        layout.addWidget(self.usdviewer)   # ✅ viewer is INSIDE item_widget
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(4)
+
+        item_widget.setLayout(layout)
+
+        # --- Insert into productBrowser (first position if needed) ---
+        #self.core.pb.productBrowser.horizontalLayout.insertWidget(0, item_widget)
+
+        self.core.pb.productBrowser.verticalLayout_2.addWidget(self.usdviewer)
+
+        # Add to parent layout
+        # self.core.pb.productBrowser.horizontalLayout.addWidget(item_widget)
+        # self.core.pb.productBrowser.addWidget(item_widget)
