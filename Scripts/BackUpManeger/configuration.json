@@ -5,7 +5,7 @@
     "max_backups": 15,
     "weekly_save_enabled": true,
     "user_schedules": {
-        "Admin": 5
+        "Admin": 1
     },
     "current_username": "Admin"
 }

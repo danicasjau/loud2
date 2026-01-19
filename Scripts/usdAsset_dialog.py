@@ -4,9 +4,21 @@ import sys
 from pathlib import Path
 
 
-from qtpy.QtCore import *
-from qtpy.QtGui import *
-from qtpy.QtWidgets import *
+try:
+    from PySide6.QtCore import *   
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+
+    from PySide6.QtCore import QThread, Signal
+
+except:
+    from qtpy.QtCore import *   
+    from qtpy.QtGui import *
+    from qtpy.QtWidgets import *
+
+    from qtpy.QtCore import QThread, Signal
+
+
 from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
 from PrismUtils.Decorators import err_catcher # pyright: ignore[reportMissingImports]
 import os
@@ -21,12 +33,7 @@ if str(PLUGINS_DIR) not in sys.path:
 from dataBase.Scripts.dataBase_operations import operations # pyright: ignore[reportMissingImports]
 
 
-DEPRATMENT_TASKS = [
-    ["Concept", ["Concept"]], 
-    ["Modeling", ["Variants", "Modeling", "Sculping", "FineDetail"]], 
-    ["Texturing", ["Texturing"]], 
-    ["LookDev", ["LookDev"]]
-]
+
 
 DEPARTMENTS = ["Default", "All"]
 USD_PRODUCTS = ["Default", "All"]
@@ -62,6 +69,23 @@ def Xform "[ASSETNAME]" (
 }
 """
 
+CUSTOM_ASSET_ENVIORMENT_USD = """#usda 1.0
+(
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "[ASSETNAME]" (
+    kind = "component"
+)
+{
+
+}
+"""
 
 CUSTOM_BINDING_BASIC_USD = """#usda 1.0
 (
@@ -331,9 +355,8 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
         # LoD SpinBox
         self.l_tx = QLabel("LoD:")
-        self.sb_tx = QSpinBox()
-        self.sb_tx.setRange(1, 16)
-        self.sb_tx.setValue(1)
+        self.ch_tx = QCheckBox()
+        self.ch_tx.setChecked(False)
 
         # GeoVariants SpinBox
         self.l_geoVariants = QLabel("GeoVariants:")
@@ -345,7 +368,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.geometry_layout.addWidget(self.l_subdivision)
         self.geometry_layout.addWidget(self.chk_subdivision)
         self.geometry_layout.addWidget(self.l_tx)
-        self.geometry_layout.addWidget(self.sb_tx)
+        self.geometry_layout.addWidget(self.ch_tx)
         self.geometry_layout.addWidget(self.l_geoVariants)
         self.geometry_layout.addWidget(self.sb_geoVariants)
         self.geometry_layout.addStretch()
@@ -688,7 +711,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'chDependant': {
+                    'ch_dependant': {
                         'value': str(metValues["ch_dependant"]),
                         'show': True
                     },
@@ -703,8 +726,13 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'geoVariants': {
+                    'geo_Variants': {
                         'value': str(metValues["geoVariants"]),
+                        'show': True
+                    },
+
+                    'geo_names': {
+                        'value': [],
                         'show': True
                     },
 
@@ -713,8 +741,13 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
-                    'mtlVariants': {
+                    'mtl_Variants': {
                         'value': str(metValues["mtlVariants"]),
+                        'show': True
+                    },
+
+                    'mtl_names': {
+                        'value': [],
                         'show': True
                     },
 
@@ -731,7 +764,23 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             preview=thumbnail
         )
 
-        products = ["asset", "binding", "geometry", "materials", "mesh", "textures"]
+        preset = self.taskPreset_combobox.currentText()
+        if preset == "ASSET_STATIC":
+            products = ["asset", "binding", "geometry", "materials", "mesh", "textures"]
+            DEPRATMENT_TASKS = [
+                ["Concept", ["Concept"]], 
+                ["Modeling", ["Variants", "Modeling", "Sculping", "FineDetail"]], 
+                ["Texturing", ["Texturing"]], 
+                ["LookDev", ["LookDev"]]
+            ]
+        elif preset == "ENVIRONMENT":
+            products = ["environment", "sceneassembly"]
+            DEPRATMENT_TASKS = [
+                ["Concept", ["Concept"]], 
+                ["SceneAssembly", ["Assembly"]], 
+                ["MasterLighting", ["Texturing"]]
+            ]
+        
         filesToDelete = []
         for prod in products:
             path = self.core.products.createProduct(entity=entity, product=f"{prod}")
@@ -751,6 +800,11 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                 productInfo = self.core.products.ingestProductVersion([pt], entity, prod)
                 self.core.products.updateMasterVersion(productInfo["createdFiles"][0])
                 filesToDelete.append(pt)
+            if prod == "environment":
+                pt = self.saveUsdPathEmpty(assetCoreName, prod, CUSTOM_ASSET_ENVIORMENT_USD, "temp", r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\temp")
+                productInfo = self.core.products.ingestProductVersion([pt], entity, prod)
+                self.core.products.updateMasterVersion(productInfo["createdFiles"][0])
+                filesToDelete.append(pt)
 
             print("Prod created")
 
@@ -767,4 +821,4 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         print("created custom 2loud asset")
 
         # Send Metadata to dataBase
-        operations.updateAsset(new=True)
+        operations.updateAsset(new=True, asset_metadata=metadata)
