@@ -61,7 +61,6 @@ class TViewer(QtWidgets.QMainWindow):
         self.timeline.playbackStarted.connect(self.on_playback_started)
         self.timeline.playbackStopped.connect(self.on_playback_stopped)
 
-        self.set_bottom_div()
         self.config_win = None
 
         menu_bar = QtWidgets.QMenuBar(self)
@@ -107,46 +106,6 @@ class TViewer(QtWidgets.QMainWindow):
 
         print("Camera successfully applied:", cameraPath)
 
-    def set_bottom_div(self):
-        """Create a bottom input bar with an entry and send button."""
-        bottom_widget = QtWidgets.QWidget()
-        bottom_widget.setMaximumHeight(30)
-        bottom_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-
-        bottom_layout = QtWidgets.QHBoxLayout(bottom_widget)
-        bottom_layout.setContentsMargins(5, 5, 5, 5)
-        bottom_layout.setSpacing(6)
-
-        # Entry box
-        self.entry = QtWidgets.QLineEdit()
-        self.entry.setPlaceholderText("Type something and press Enter...")
-        self.entry.returnPressed.connect(self.send_input)
-        self.entry.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.entry.setMaximumHeight(24)
-
-        # Send button
-        send_button = QtWidgets.QPushButton("Send")
-        send_button.clicked.connect(self.send_input)
-        send_button.setStyleSheet(
-                "background-color: #222; color: #eee; padding: 6px; border-radius: 6px;"
-            )
-        send_button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        send_button.setMaximumHeight(24)
-
-        # Add to layout
-        bottom_layout.addWidget(self.entry)
-        bottom_layout.addWidget(send_button)
-
-        # Keep bar at bottom
-        self.main_layout.addStretch()
-        self.main_layout.addWidget(bottom_widget)
-
-    def send_input(self):
-        """Emit the text input as a string."""
-        text = self.entry.text().strip()
-        if text:
-            self.llmConnection.emit({"input": text})
-            self.entry.clear()
 
     def setStage(self, stage):
         self.model.stage = stage
@@ -181,8 +140,6 @@ class TViewer(QtWidgets.QMainWindow):
         self.setWindowTitle(f"Frame: {frame_val}")
 
         if int(self.model.currentFrame.GetValue()) == 1: #% (196*2) 
-            print("Frame divisble between 50. Lounching animation")
-            print("------------------------------------------------------------------------------------------------ ANIMATION DIVIDING")
             self.movementConnection.emit({"frame": int(self.model.currentFrame.GetValue())})
 
         if playback:
@@ -206,11 +163,6 @@ class TViewer(QtWidgets.QMainWindow):
         recenter_action = control_menu.addAction("Recenter View")
         recenter_action.triggered.connect(reloadCamera)
         control_menu.addAction(recenter_action)
-
-        window_menu = menu_bar.addMenu("Window")
-        config_action = window_menu.addAction("Configuration")
-        config_action.triggered.connect(lambda: print("NO"))
-
 
 
     def on_playback_stopped(self):

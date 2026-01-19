@@ -1,34 +1,130 @@
 [
     {
         "id": 1,
-        "name": "Alice Smith",
-        "username": "asmith",
-        "abreviation": "AS",
+        "name": "Ione Ferrer",
+        "username": "ione",
+        "abreviation": "ion",
         "role": "Artist",
         "power": 1
     },
     {
         "id": 2,
-        "name": "Bob Dylan",
-        "username": "bob.dylan",
-        "abreviation": "abrc",
-        "role": "Admin",
-        "power": 7
+        "name": "Roger Armengol",
+        "username": "roger",
+        "abreviation": "roger",
+        "role": "Artist",
+        "power": 1
     },
     {
         "id": 3,
-        "name": "Carla Martinez",
-        "username": "cmartinez",
-        "abreviation": "CM",
-        "role": "Supervisor",
-        "power": 7
+        "name": "Pol Villalba",
+        "username": "pol",
+        "abreviation": "pol",
+        "role": "Artist",
+        "power": 1
     },
     {
         "id": 99,
-        "name": "Admin User",
+        "name": "Admin.admin",
         "username": "admin",
-        "abreviation": "ADM",
+        "abreviation": "admin",
         "role": "Admin",
         "power": 10
+    },
+    {
+        "id": 4,
+        "name": "Mireia Llados",
+        "username": "mireia",
+        "abreviation": "mire",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 5,
+        "name": "Maria Elna Jorba",
+        "username": "marialena",
+        "abreviation": "mar",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 6,
+        "name": "Leyre Burguete",
+        "username": "leyre",
+        "abreviation": "ley",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 7,
+        "name": "Miguel Angel",
+        "username": "miguel",
+        "abreviation": "migu",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 8,
+        "name": "Joan Pau Mora",
+        "username": "joanpau",
+        "abreviation": "jp",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 9,
+        "name": "Georgia",
+        "username": "georgia",
+        "abreviation": "geo",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 10,
+        "name": "Mariona Benito",
+        "username": "mariona",
+        "abreviation": "marb",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 11,
+        "name": "Idaira Pena",
+        "username": "idaira",
+        "abreviation": "ida",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 12,
+        "name": "Mariona Molera",
+        "username": "mariona",
+        "abreviation": "mule",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 13,
+        "name": "Olivia segarra",
+        "username": "Olivia",
+        "abreviation": "olv",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 14,
+        "name": "Daniel Casadevall",
+        "username": "daniel",
+        "abreviation": "dani",
+        "role": "Artist",
+        "power": 1
+    },
+    {
+        "id": 15,
+        "name": "Marti 300",
+        "username": "marti",
+        "abreviation": "marti",
+        "role": "Artist",
+        "power": 1
     }
 ]

@@ -8,8 +8,10 @@ from tviewer import TViewer
 from setScene import getUsdScene
 from PySide6 import QtWidgets, QtCore
 
+usdPath = r"p:\VFX_Project_30\2LOUD\Spotlight\03_Production\Assets\ASSETS\SOUNDSTAGE\PROPS\sandBag\Export\asset\master\sandBag_asset_master.usda"
+
 app = QtWidgets.QApplication(sys.argv)
-viewer = TViewer(stage=getUsdScene())
+viewer = TViewer(stage=getUsdScene(usdPath))
 viewer.resize(QtCore.QSize(700, 950))
 viewer.show()
 viewer.view.updateView(resetCam=False, forceComputeBBox=True)

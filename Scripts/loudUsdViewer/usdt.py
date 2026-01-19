@@ -3,11 +3,12 @@ import sys
 sys.path.append(r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Plugins\Custom\laud2\Scripts\loudUsdViewer")
 sys.path.append("C:\Program Files\Prism2\PythonLibs\Python3\PySide")
 sys.path.append(r"C:\Program Files\Side Effects Software\Houdini 21.0.440\bin")
+sys.path.append(r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\Enviroment\env\Lib\site-packages")
 
 import os 
 
 
-USD_ROOT = r"D:\2loudAddons\USD\USD_install"
+USD_ROOT = r"P:\VFX_Project_30\2LOUD\Spotlight\00_Pipeline\USD\USD_install"
 
 # Ensure Python bindings are found
 usd_python = os.path.join(USD_ROOT, "lib", "python")

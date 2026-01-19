@@ -1,5 +1,11 @@
+# ///////////////////////////////////////////////////////////////////////////////////////
+# laud2 - usd Asset dialog - by 2LOUD - dev. Daniel Casadevall
+# ///////////////////////////////////////////////////////////////////////////////////////\
 
 
+
+
+import os
 import sys
 from pathlib import Path
 
@@ -21,16 +27,19 @@ except:
 
 from PrismUtils import PrismWidgets # pyright: ignore[reportMissingImports]
 from PrismUtils.Decorators import err_catcher # pyright: ignore[reportMissingImports]
-import os
 
 
-# Dynamically find the PLUGINS folder (3 levels up from this file)
-PLUGINS_DIR = Path(__file__).resolve().parents[3]
-if str(PLUGINS_DIR) not in sys.path:
-    sys.path.insert(0, str(PLUGINS_DIR))
 
-# Now we can import from dataBase
-from dataBase.Scripts.dataBase_operations import operations # pyright: ignore[reportMissingImports]
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+DATA_BASE_SCRIPTS = PROJECT_ROOT / "dataBase" / "Scripts"
+if str(DATA_BASE_SCRIPTS) not in sys.path:
+    print(f"{DATA_BASE_SCRIPTS} not found")
+
+from dataBase_operations import operations # pyright: ignore[reportMissingImports]
+
+
 
 
 
@@ -353,25 +362,19 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.chk_subdivision = QCheckBox()
         self.chk_subdivision.setChecked(False)
 
-        # LoD SpinBox
-        self.l_tx = QLabel("LoD:")
-        self.ch_tx = QCheckBox()
-        self.ch_tx.setChecked(False)
-
         # GeoVariants SpinBox
         self.l_geoVariants = QLabel("GeoVariants:")
         self.sb_geoVariants = QSpinBox()
         self.sb_geoVariants.setRange(1, 16)
         self.sb_geoVariants.setValue(1)
-        self.sb_geoVariants.setFixedWidth(60)
+        self.sb_geoVariants.setFixedWidth(25)
 
         self.geometry_layout.addWidget(self.l_subdivision)
         self.geometry_layout.addWidget(self.chk_subdivision)
-        self.geometry_layout.addWidget(self.l_tx)
-        self.geometry_layout.addWidget(self.ch_tx)
+        self.geometry_layout.addStretch()
         self.geometry_layout.addWidget(self.l_geoVariants)
         self.geometry_layout.addWidget(self.sb_geoVariants)
-        self.geometry_layout.addStretch()
+
 
         self.geometry_content_layout.addWidget(self.geometry_widget)
         
@@ -420,13 +423,13 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.sb_mtlVariants = QSpinBox()
         self.sb_mtlVariants.setRange(1, 16)
         self.sb_mtlVariants.setValue(1)
-        self.sb_mtlVariants.setFixedWidth(60)
+        self.sb_mtlVariants.setFixedWidth(25)
 
         self.materials_layout.addWidget(self.l_txSize)
         self.materials_layout.addWidget(self.cb_txSize)
+        self.materials_layout.addStretch()
         self.materials_layout.addWidget(self.l_mtlVariants)
         self.materials_layout.addWidget(self.sb_mtlVariants)
-        self.materials_layout.addStretch()
 
         self.materials_content_layout.addWidget(self.materials_widget)
         self.assetSettings_Layout.addWidget(self.materials_content)
@@ -604,7 +607,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             "ch_dependant": self.ChDependant_check.isChecked(),
             "asset_type": self.taskPreset_combobox.currentText(),
             "subdivision": self.chk_subdivision.isChecked(),
-            "LoD": self.sb_tx.value(),
             "geoVariants": self.sb_geoVariants.value(),
             "txSize": (
                 self.cb_txSize.currentText()
@@ -704,7 +706,10 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         print(f"Asset created in path: {assetName}")
 
         metadata = {
-                    'isAsset2loud': {'value': 'True', 'show': False},
+                    'isAsset2loud': {
+                        'value': 'True',
+                        'show': False
+                    },
 
                     'id': {
                         'value': metValues["id"],
@@ -718,11 +723,6 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
 
                     'subdivision': {
                         'value': str(metValues["subdivision"]),
-                        'show': True
-                    },
-
-                    'LoD': {
-                        'value': str(metValues["LoD"]),
                         'show': True
                     },
 
@@ -819,6 +819,8 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         self.core.pb.refreshUI()
         print(result)
         print("created custom 2loud asset")
+        print(metadata)
 
         # Send Metadata to dataBase
-        operations.updateAsset(new=True, asset_metadata=metadata)
+        ops = operations(plugin_root=DATA_BASE_SCRIPTS)
+        ops.updateAsset(new=True, asset_name=assetName, asset_metadata=metadata)

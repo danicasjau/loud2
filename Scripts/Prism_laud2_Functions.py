@@ -19,9 +19,20 @@
 # This file is part of Prism.
 
 
-from qtpy.QtCore import *
-from qtpy.QtGui import *
-from qtpy.QtWidgets import *
+try:
+    from PySide6.QtCore import *   
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+
+    from PySide6.QtCore import QThread, Signal
+
+except:
+    from qtpy.QtCore import *   
+    from qtpy.QtGui import *
+    from qtpy.QtWidgets import *
+
+    from qtpy.QtCore import QThread, Signal
+
 
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher # pyright: ignore[reportMissingImports]
 
@@ -147,7 +158,7 @@ class Prism_laud2_Functions(object):
             self.core.registerStyleSheet(path=r"P:\VFX_Project_30\r&d\tloud\00_Pipeline\Styles\loudStyle")
             self.core.setActiveStyleSheet("loudStyle")
         
-        self.setDeacentStyle()
+        #self.setDeacentStyle()
 
     
     def showWebWindow(self, oType="dis"):
