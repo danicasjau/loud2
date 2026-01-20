@@ -16,7 +16,9 @@
         "role": "Artist",
         "power": 1,
         "discordid": "1463129695494078538",
-        "knownNames": []
+        "knownNames": [
+            ""
+        ]
     },
     {
         "id": 2,
@@ -63,7 +65,10 @@
         "abreviation": "mire",
         "role": "Artist",
         "power": 1,
-        "discordid": "1149749779610480703"
+        "discordid": "1149749779610480703",
+        "knownNames": [
+            "mireia.llados"
+        ]
     },
     {
         "id": 6,
@@ -84,7 +89,10 @@
         "abreviation": "ley",
         "role": "Artist",
         "power": 1,
-        "discordid": "1165312706740486255"
+        "discordid": "1165312706740486255",
+        "knownNames": [
+            "leyre.burguete"
+        ]
     },
     {
         "id": 8,
@@ -93,7 +101,10 @@
         "abreviation": "migu",
         "role": "Artist",
         "power": 1,
-        "discordid": "738370697629532180"
+        "discordid": "738370697629532180",
+        "knownNames": [
+            "miguelangel.ramirez"
+        ]
     },
     {
         "id": 9,
@@ -102,7 +113,10 @@
         "abreviation": "jp",
         "role": "Artist",
         "power": 1,
-        "discordid": "421812260382572544"
+        "discordid": "421812260382572544",
+        "knownNames": [
+            "joanpau.mora"
+        ]
     },
     {
         "id": 10,
@@ -124,7 +138,10 @@
         "abreviation": "marb",
         "role": "Artist",
         "power": 1,
-        "discordid": "771678789905416204"
+        "discordid": "771678789905416204",
+        "knownNames": [
+            "mariona.benito"
+        ]
     },
     {
         "id": 12,
@@ -133,26 +150,35 @@
         "abreviation": "ida",
         "role": "Artist",
         "power": 1,
-        "discordid": "548150350671118348"
+        "discordid": "548150350671118348",
+        "knownNames": [
+            "idaira.pena"
+        ]
     },
     {
         "id": 13,
         "name": "Mariona Molera",
-        "username": "mariona.molera",
+        "username": "marionaM",
         "abreviation": "mule",
         "role": "Artist",
         "power": 1,
         "discordid": "814194861875527722",
-        "knownNames": []
+        "knownNames": [
+            "mariona.molera"
+        ]
     },
     {
         "id": 14,
-        "name": "Olivia segarra",
+        "name": "Olivia Segarra",
         "username": "Olivia",
-        "abreviation": "olv",
+        "abreviation": "bibi",
         "role": "Artist",
         "power": 1,
-        "discordid": "701837928829026355"
+        "discordid": "701837928829026355",
+        "knownNames": [
+            "olivia.segarra",
+            "bibi"
+        ]
     },
     {
         "id": 15,

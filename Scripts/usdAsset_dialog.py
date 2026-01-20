@@ -732,7 +732,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                     },
 
                     'geo_names': {
-                        'value': [],
+                        'value': [''],
                         'show': True
                     },
 
@@ -747,7 +747,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                     },
 
                     'mtl_names': {
-                        'value': [],
+                        'value': [''],
                         'show': True
                     },
 

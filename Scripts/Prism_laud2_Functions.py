@@ -123,7 +123,7 @@ class Prism_laud2_Functions(object):
 
         self.core.users.setUser(username, True, abrev, True)
         self.core.username = username
-        #self.core.users.setUserAbbeviation(abrev, True)
+
 
 
 
@@ -202,6 +202,10 @@ class Prism_laud2_Functions(object):
         origin.backupMenu.addAction("Fast Backup", lambda: self.openBackupManager())
         origin.backupMenu.addAction("Start full Backup", lambda: self.openBackupManager())
         origin.menubar.addMenu(origin.backupMenu)
+
+        origin.labelTitleLoud = QLabel("2LOUD PRISM")
+        #origin.menubar.setCornerWidget(origin.labelTitleLoud, Qt.TopRightCorner)
+
 
     def postInitialize(self):
         if self.setStyle:
