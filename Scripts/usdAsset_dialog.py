@@ -707,6 +707,16 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
                         'show': True
                     },
 
+                    'min_cam_distance': {
+                        'value': '',
+                        'show': True
+                    },
+
+                    'path': {
+                        'value': '',
+                        'show': True
+                    },
+
                     'subdivision': {
                         'value': str(metValues["subdivision"]),
                         'show': True

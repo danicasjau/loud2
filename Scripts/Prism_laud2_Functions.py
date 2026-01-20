@@ -301,6 +301,19 @@ class Prism_laud2_Functions(object):
         else:
             menu.addAction(action)
             if hasId: menu.addAction(deleteAction)
+
+        btnView = QPushButton("View Asset")
+        btnView.setStyleSheet("""QPushButton { background-color: rgba(0, 255, 0, 0.2);}
+        QPushButton:hover {background-color: rgba(0, 255, 0, 0.4);}""")
+        btnView.clicked.connect(lambda: self.updateUsdViewer(f"{path}"))
+
+
+        #deleteAction = QAction("Delete Asset", origin)
+        deleteAction = QWidgetAction(origin)
+        deleteAction.setDefaultWidget(btn)
+
+
+        menu.addAction(setOnViewer)
     
     # ======================================
     # SHOT CREATION USD ABLE
@@ -336,12 +349,13 @@ class Prism_laud2_Functions(object):
             menu.addAction(action)
             if hasId: menu.addAction(deleteAction)
     
-    def updateUsdViewer(self, args=None, args2=None):
-        if args:
-            context = args.getCurrentProduct()
-            path = context["path"]
+    def updateUsdViewer(self, path=None):
+        if path:
+            # context = args.getCurrentProduct()
+            # p:\VFX_Project_30\2LOUD\Spotlight\03_Production\Assets\ASSETS\SOUNDSTAGE\PROPS\chroma
             if self.usdviewer:
-                self.usdviewer.reopenStage(os.path.join(path, "master", f"{context['asset']}_{context['type']}_master.usda"))
+                assetName = os.path.basename(path)
+                self.usdviewer.reopenStage(os.path.join(path, "Export", "asset", "master", f"{assetName}_asset_master.usda"))
 
 
     def showUsdPanel(self):
