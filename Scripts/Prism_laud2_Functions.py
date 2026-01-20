@@ -18,6 +18,9 @@
 #
 # This file is part of Prism.
 
+import sys
+import os
+import getpass
 
 try:
     from PySide6.QtCore import *   
@@ -65,6 +68,7 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback("postInitialize", self.postInitialize, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.setNamings, plugin=self)
         self.core.registerCallback("onProjectBrowserStartup", self.onProjectBrowserStartup, plugin=self)
+        self.core.registerCallback("onProjectBrowserStartup", self.setUser, plugin=self)
         #self.core.registerCallback("onProjectBrowserStartup", self.showUsdPanel, plugin=self) # afageix layout usd viewer 
 
         # ============== ASSET CREATION FALLBACK =========================
@@ -77,11 +81,49 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback(
             "onCreateAssetDlgOpen", self.customAssetCreation, plugin=self
         )
-        self.core.registerCallback(
-            "onCreateVersionDlgOpen", self.updateUsdViewer, plugin=self
-        )
 
         self.usdviewer = None
+
+    def setUser(self, origin):
+        print("set user")
+        """
+        Returns a tuple: (name, abbreviation, role)
+        - If the PC username exists in users.json, return that user's info.
+        - Otherwise, return a Guest user with generated name and abbreviation.
+        """
+
+        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manager", "users.json")
+        
+        pc_username = getpass.getuser().lower()
+
+        username, abrev = "guest", "guest"  # default values
+
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                users = json.load(f)
+
+            # Look for exact username or in knownNames
+            for user in users:
+                user_username = user["username"].lower()
+                known_names = [k.lower() for k in user.get("knownNames", [])]
+
+                # Check exact username match
+                if pc_username == user_username:
+                    username, abrev, role = user["username"], user["abreviation"], user["role"]
+                    break
+
+                # Check knownNames
+                if pc_username in known_names:
+                    username, abrev, role = user["username"], user["abreviation"], user["role"]
+                    break
+
+        os.environ["PRISM_USER"] = username
+        os.environ["PRISM_USER_ABREVIATION"] = abrev
+
+        self.core.users.setUser(username, True, abrev, True)
+        self.core.username = username
+        #self.core.users.setUserAbbeviation(abrev, True)
+
 
 
     @err_catcher(name=__name__)
@@ -141,7 +183,7 @@ class Prism_laud2_Functions(object):
                 else:
                     origin.menubar.removeAction(act)
 
-        origin.documentationMenu = QMenu("Docs l2")
+        origin.documentationMenu = QMenu("📄Docs l2")
         origin.documentationMenu.addAction("Organization Excel", lambda: self.showWebWindow("exc"))
         origin.documentationMenu.addAction("All Documentation", lambda: self.showWebWindow("other"))
         origin.documentationMenu.addAction("Discord", lambda: self.showWebWindow("dis"))
@@ -149,12 +191,12 @@ class Prism_laud2_Functions(object):
         origin.menubar.addMenu(origin.documentationMenu)
 
 
-        origin.agentMenu = QMenu("2LOUD")
+        origin.agentMenu = QMenu("📢2LOUD")
         origin.agentMenu.addAction("Configuration", lambda: self.showConfiguration())
         origin.agentMenu.addAction("Show usd", lambda: self.showUsdPanel())
         origin.menubar.addMenu(origin.agentMenu)
 
-        origin.backupMenu = QMenu("Backup")
+        origin.backupMenu = QMenu("💽Backup")
         origin.backupMenu.addAction("Backup Manager", lambda: self.openBackupManager())
         origin.backupMenu.addAction("Fast Backup", lambda: self.openBackupManager())
         origin.backupMenu.addAction("Start full Backup", lambda: self.openBackupManager())
@@ -294,26 +336,27 @@ class Prism_laud2_Functions(object):
                 hasId = True
                 break
 
-        if menu.actions():
-            menu.insertAction(menu.actions()[0], action)
-            if hasId:
-                menu.addAction(deleteAction) 
-        else:
-            menu.addAction(action)
-            if hasId: menu.addAction(deleteAction)
 
         btnView = QPushButton("View Asset")
         btnView.setStyleSheet("""QPushButton { background-color: rgba(0, 255, 0, 0.2);}
         QPushButton:hover {background-color: rgba(0, 255, 0, 0.4);}""")
         btnView.clicked.connect(lambda: self.updateUsdViewer(f"{path}"))
 
-
         #deleteAction = QAction("Delete Asset", origin)
-        deleteAction = QWidgetAction(origin)
-        deleteAction.setDefaultWidget(btn)
+        setOnViewer = QWidgetAction(origin)
+        setOnViewer.setDefaultWidget(btnView)
 
+        if menu.actions():
+            menu.insertAction(menu.actions()[0], action)
+            if hasId:
+                menu.addAction(deleteAction) 
+                menu.addAction(setOnViewer)
+        else:
+            menu.addAction(action)
+            if hasId: 
+                menu.addAction(deleteAction)
+                menu.addAction(setOnViewer)
 
-        menu.addAction(setOnViewer)
     
     # ======================================
     # SHOT CREATION USD ABLE
@@ -364,6 +407,9 @@ class Prism_laud2_Functions(object):
         from loudUsdViewer import tviewer #TViewer
         from loudUsdViewer import setScene #getUsdScene
 
+        if self.usdviewer:
+            return
+
         item_widget = QWidget()
         item_widget.setObjectName("usdViewerItem")
         item_widget.setLayoutDirection(Qt.LeftToRight)
@@ -374,6 +420,8 @@ class Prism_laud2_Functions(object):
         usd_versionRight.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         # --- USD Viewer ---
+
+        
         self.usdviewer = tviewer.TViewer(stage=setScene.getUsdScene(usdPath))
         self.usdviewer.setBaseSize(400, 400)   # use this instead of resize()
 

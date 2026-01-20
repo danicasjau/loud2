@@ -1,0 +1,1 @@
+self.core.users.setUser(self, setUser, setAbbreviation=True, abbreviation=None, force=False):

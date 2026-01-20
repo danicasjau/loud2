@@ -689,7 +689,11 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
             'type': 'asset', 
             'asset_path': f'{assetName}'
         }
+
         print(f"Asset created in path: {assetName}")
+
+        # Create Mtl and Geo Variants Names
+
 
         metadata = {
                     'isAsset2loud': {
@@ -820,7 +824,7 @@ class CreateAssetCustomDlg(PrismWidgets.CreateItem):
         # Send Metadata to dataBase
         ops = operations(plugin_root=DATA_BASE_SCRIPTS)
 
-        ops.updateAsset(new=True, asset_name=assetName, asset_metadata=metadata)
+        ops.updateAsset(new=True, asset_name=assetName, asset_metadata=metadata, operationUser=(os.environ["PRISM_USER"]))
 
 
     

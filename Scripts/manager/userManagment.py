@@ -21,6 +21,8 @@ class User:
         self.abreviation = None
         self.role = "Artist"
         self.power = 1
+        self.discordID = None
+        self.knownNames = None
 
     def _load_users(self):
         if not os.path.exists(file_path):
@@ -112,12 +114,18 @@ class UserManagementWindow(QWidget):
         right_layout.addLayout(self._row("Abbreviation", self.e_abrev))
 
         self.cb_role = QComboBox()
-        self.cb_role.addItems(["Artist", "Lead", "Supervisor", "Admin"])
+        self.cb_role.addItems(["Colabo", "Artist", "Lead", "Supervisor", "Admin"])
         right_layout.addLayout(self._row("Role", self.cb_role))
 
         self.sb_power = QSpinBox()
         self.sb_power.setRange(1, 10)
         right_layout.addLayout(self._row("Power", self.sb_power))
+
+        self.e_discordid = QLineEdit()
+        right_layout.addLayout(self._row("Discord ID", self.e_discordid))
+
+        self.e_knownNames = QLineEdit()
+        right_layout.addLayout(self._row("Known PC names", self.e_knownNames))
 
         # Buttons
         btn_layout = QHBoxLayout()
@@ -168,6 +176,8 @@ class UserManagementWindow(QWidget):
         self.e_abrev.setText(u.abreviation)
         self.cb_role.setCurrentText(u.role)
         self.sb_power.setValue(u.power)
+        self.e_discordid.setText(u.discordID)
+        self.e_knownNames.setText(u.knownNames)
 
     def _new_user(self):
         self.current_user = User()
@@ -177,6 +187,7 @@ class UserManagementWindow(QWidget):
         self.e_abrev.clear()
         self.cb_role.setCurrentText("Artist")
         self.sb_power.setValue(1)
+        self.e_discordid.clear()
 
     def _save_user(self):
         if not self.current_user:
@@ -188,6 +199,8 @@ class UserManagementWindow(QWidget):
         self.current_user.abreviation = self.e_abrev.text()
         self.current_user.role = self.cb_role.currentText()
         self.current_user.power = self.sb_power.value()
+        self.current_user.discordID = self.e_discordid.text()
+        self.current_user.knownNames = self.e_knownNames.Text().split(", ") if self.e_knownNames.Text() else []
 
         # Decide add vs update
         if not self.current_user.saveUser():
