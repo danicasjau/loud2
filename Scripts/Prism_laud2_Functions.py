@@ -71,6 +71,7 @@ class Prism_laud2_Functions(object):
         self.core.registerCallback("onProjectBrowserStartup", self.setUser, plugin=self)
         #self.core.registerCallback("onProjectBrowserStartup", self.showUsdPanel, plugin=self) # afageix layout usd viewer 
 
+
         # ============== ASSET CREATION FALLBACK =========================
         self.core.registerCallback(
             "openPBAssetContextMenu", self.assetAction, plugin=self
